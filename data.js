@@ -278,10 +278,12 @@ const PORTFOLIO_DATA = {
 
   // ── GAMES (future feature) ───────────────────────────────
   games: {
-    coming_soon: true,
-    description: "Interactive security challenges and mini-games. Coming soon!",
-    items: [
-      // { name: "Hash Cracker Game", desc: "Guess the hash type", url: "#", icon: "🎮" },
+    coming_soon: false,
+    description: "Interactive security challenges and mini-games.",
+    items: [{ name: "HackChess", desc: "Chess vs AI — 20 levels", url: "hackchess.html", icon: "♟️" },
+  ],
+},
+      // { name: "", desc: "Guess the hash type", url: "#", icon: "🎮" },
       // { name: "CTF Quiz",          desc: "Test your knowledge", url: "#", icon: "🧠" },
     ],
   },
