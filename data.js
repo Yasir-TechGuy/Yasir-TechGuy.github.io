@@ -282,8 +282,8 @@ const PORTFOLIO_DATA = {
     description: "Interactive security challenges and mini-games.",
     items: [
       { name: "HackChess", desc: "Chess vs AI — 20 levels", url: "hackchess.html", icon: "♟️" },
-  ]
-}
+  ],
+},
       // { name: "", desc: "Guess the hash type", url: "#", icon: "🎮" },
       // { name: "CTF Quiz",          desc: "Test your knowledge", url: "#", icon: "🧠" },
     ],
