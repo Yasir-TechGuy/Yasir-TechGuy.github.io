@@ -1,0 +1,1212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HackChess — Capture the Flag</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #020a06; --bg2: #061210; --bg3: #0a1f14;
+  --green: #00ff88; --green2: #00cc66; --green3: #004422;
+  --cyan: #00ffcc; --red: #ff3344; --yellow: #ffcc00;
+  --text: #88ffbb; --muted: #336644; --border: #0a3322;
+  --light-sq: #0d2b1a; --dark-sq: #061510;
+  --light-hover: #1a4a2a; --dark-hover: #0f2a1a;
+  --selected: #00ff8844; --move-hint: #00ffcc33;
+  --last-move: #ffcc0022;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+html,body { height:100%; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Share Tech Mono', monospace;
+  overflow-x: hidden;
+  min-height: 100vh;
+}
+
+/* SCANLINES */
+body::before {
+  content:''; position:fixed; inset:0; z-index:999; pointer-events:none;
+  background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,255,136,0.018) 2px, rgba(0,255,136,0.018) 4px);
+}
+
+/* GRID BG */
+body::after {
+  content:''; position:fixed; inset:0; z-index:0; pointer-events:none;
+  background-image: linear-gradient(var(--border) 1px, transparent 1px), linear-gradient(90deg, var(--border) 1px, transparent 1px);
+  background-size: 40px 40px; opacity:0.4;
+}
+
+/* HEADER */
+header {
+  position: relative; z-index:10;
+  border-bottom: 1px solid var(--green);
+  padding: 0.8rem 2rem;
+  display: flex; align-items:center; justify-content:space-between;
+  background: rgba(2,10,6,0.95); backdrop-filter:blur(10px);
+}
+.logo { font-family:'Orbitron',monospace; font-size:1.4rem; font-weight:900; color:var(--green); letter-spacing:3px; }
+.logo span { color:var(--cyan); }
+.header-sub { font-size:0.65rem; color:var(--muted); letter-spacing:3px; text-transform:uppercase; margin-top:0.2rem; }
+.status-bar { display:flex; gap:1.5rem; align-items:center; }
+.status-item { font-size:0.7rem; color:var(--muted); letter-spacing:1px; }
+.status-item span { color:var(--green); }
+
+/* MAIN LAYOUT */
+.game-container {
+  position: relative; z-index:1;
+  display: grid;
+  grid-template-columns: 240px 1fr 240px;
+  gap: 1.5rem;
+  padding: 1.5rem 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  min-height: calc(100vh - 70px);
+  align-items: start;
+}
+
+/* PANELS */
+.panel {
+  background: rgba(6,18,10,0.9);
+  border: 1px solid var(--border);
+  border-top: 2px solid var(--green);
+}
+.panel-title {
+  font-family:'Orbitron',monospace; font-size:0.65rem; font-weight:700;
+  color:var(--green); letter-spacing:3px; text-transform:uppercase;
+  padding:0.8rem 1rem; border-bottom:1px solid var(--border);
+  display:flex; align-items:center; gap:0.5rem;
+}
+.panel-title::before { content:'['; color:var(--muted); }
+.panel-title::after  { content:']'; color:var(--muted); }
+
+/* LEFT PANEL — LEVEL SELECT */
+.level-section { padding:1rem; }
+.level-label { font-size:0.65rem; color:var(--muted); letter-spacing:2px; margin-bottom:0.5rem; }
+.level-display {
+  font-family:'Orbitron',monospace; font-size:2rem; font-weight:900;
+  color:var(--green); text-align:center; padding:0.5rem 0;
+  text-shadow: 0 0 20px var(--green);
+}
+.level-name {
+  font-size:0.7rem; color:var(--cyan); text-align:center;
+  letter-spacing:2px; margin-bottom:0.8rem;
+}
+.level-slider {
+  width:100%; -webkit-appearance:none; appearance:none;
+  height:4px; background:var(--border); outline:none; margin:0.8rem 0;
+  cursor:pointer;
+}
+.level-slider::-webkit-slider-thumb {
+  -webkit-appearance:none; width:16px; height:16px;
+  background:var(--green); border-radius:50%; cursor:pointer;
+  box-shadow: 0 0 8px var(--green);
+}
+.level-tiers { display:grid; gap:0.3rem; margin-top:0.5rem; }
+.tier {
+  padding:0.4rem 0.6rem; font-size:0.6rem; letter-spacing:1px;
+  border:1px solid var(--border); color:var(--muted); cursor:pointer;
+  transition:all 0.15s; display:flex; justify-content:space-between;
+}
+.tier:hover { border-color:var(--green); color:var(--text); }
+.tier.active { border-color:var(--green); color:var(--green); background:rgba(0,255,136,0.05); }
+.tier-range { opacity:0.6; }
+
+.btn-new {
+  width:100%; margin-top:1rem; padding:0.7rem;
+  background:var(--green); color:var(--bg); border:none; cursor:pointer;
+  font-family:'Orbitron',monospace; font-size:0.7rem; font-weight:700;
+  letter-spacing:2px; text-transform:uppercase; transition:all 0.2s;
+}
+.btn-new:hover { background:var(--cyan); box-shadow:0 0 15px var(--green); }
+
+/* PIECES INFO */
+.pieces-list { padding:0.8rem 1rem; display:grid; gap:0.3rem; }
+.piece-row {
+  display:flex; align-items:center; gap:0.6rem;
+  font-size:0.7rem; padding:0.3rem 0; border-bottom:1px solid var(--border);
+}
+.piece-row:last-child { border:none; }
+.piece-sym { font-size:1.1rem; width:1.5rem; text-align:center; }
+.piece-info { flex:1; }
+.piece-name { color:var(--green); font-size:0.65rem; }
+.piece-role { color:var(--muted); font-size:0.55rem; letter-spacing:1px; }
+
+/* BOARD CENTER */
+.board-section { display:flex; flex-direction:column; align-items:center; gap:1rem; }
+
+.game-info-bar {
+  width:100%; display:flex; justify-content:space-between; align-items:center;
+  background:rgba(6,18,10,0.9); border:1px solid var(--border);
+  padding:0.6rem 1rem; font-size:0.7rem;
+}
+.turn-indicator { display:flex; align-items:center; gap:0.5rem; }
+.turn-dot { width:10px;height:10px; border-radius:50%; animation:pulse 1.5s infinite; }
+.turn-dot.white { background:#fff; box-shadow:0 0 8px #fff; }
+.turn-dot.black { background:var(--red); box-shadow:0 0 8px var(--red); }
+@keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.5;transform:scale(0.8)} }
+
+.check-alert {
+  color:var(--red); font-family:'Orbitron',monospace; font-size:0.7rem;
+  letter-spacing:2px; animation:flash 0.5s infinite alternate;
+  display:none;
+}
+@keyframes flash { from{opacity:1} to{opacity:0.2} }
+
+/* BOARD */
+.board-wrapper {
+  position:relative;
+  border:2px solid var(--green);
+  box-shadow: 0 0 30px rgba(0,255,136,0.15), inset 0 0 30px rgba(0,255,136,0.03);
+}
+.board { display:grid; grid-template-columns:repeat(8,1fr); width:min(520px, calc(100vw - 560px)); aspect-ratio:1; }
+.sq {
+  display:flex; align-items:center; justify-content:center;
+  cursor:pointer; position:relative; transition:background 0.1s;
+  font-size:clamp(1.4rem, 3vw, 2.2rem);
+  user-select:none;
+}
+.sq.light { background:var(--light-sq); }
+.sq.dark  { background:var(--dark-sq); }
+.sq.light:hover { background:var(--light-hover); }
+.sq.dark:hover  { background:var(--dark-hover); }
+.sq.selected { background:var(--selected) !important; box-shadow:inset 0 0 0 2px var(--green); }
+.sq.move-hint::after {
+  content:''; position:absolute; width:30%; height:30%;
+  background:var(--move-hint); border-radius:50%;
+  border:2px solid rgba(0,255,204,0.4);
+}
+.sq.capture-hint { box-shadow:inset 0 0 0 3px rgba(255,51,68,0.5); }
+.sq.last-move { background:var(--last-move) !important; }
+.sq.in-check { background:rgba(255,51,68,0.3) !important; animation:checkFlash 0.6s infinite alternate; }
+@keyframes checkFlash { from{background:rgba(255,51,68,0.3)} to{background:rgba(255,51,68,0.15)} }
+
+/* COORDINATES */
+.coord-file { position:absolute; bottom:2px; right:3px; font-size:0.5rem; color:var(--muted); font-family:'Share Tech Mono',monospace; pointer-events:none; }
+.coord-rank { position:absolute; top:2px; left:3px; font-size:0.5rem; color:var(--muted); font-family:'Share Tech Mono',monospace; pointer-events:none; }
+
+/* PIECE SYMBOLS — hacking themed */
+.piece { display:block; line-height:1; filter:drop-shadow(0 0 3px currentColor); transition:transform 0.1s; }
+.piece.white { color:#e8f8f0; }
+.piece.black { color:var(--red); }
+.sq:hover .piece { transform:scale(1.1); }
+
+/* CAPTURED */
+.captured-bar {
+  width:100%; background:rgba(6,18,10,0.9); border:1px solid var(--border);
+  padding:0.5rem 1rem; display:flex; align-items:center; gap:0.5rem;
+  font-size:0.7rem; min-height:36px; flex-wrap:wrap;
+}
+.cap-label { color:var(--muted); letter-spacing:1px; margin-right:0.3rem; }
+.cap-piece { font-size:0.9rem; }
+
+/* RIGHT PANEL — TERMINAL LOG */
+.terminal-log {
+  height:420px; overflow-y:auto; padding:0.8rem 1rem;
+  font-size:0.68rem; line-height:1.6;
+  scrollbar-width:thin; scrollbar-color:var(--green3) var(--bg);
+}
+.terminal-log::-webkit-scrollbar { width:4px; }
+.terminal-log::-webkit-scrollbar-track { background:var(--bg); }
+.terminal-log::-webkit-scrollbar-thumb { background:var(--green3); }
+
+.log-entry { margin-bottom:0.2rem; }
+.log-num { color:var(--muted); }
+.log-white { color:var(--text); }
+.log-black { color:var(--red); }
+.log-system { color:var(--yellow); font-style:italic; }
+.log-check { color:var(--red); font-weight:bold; }
+.log-capture { color:var(--cyan); }
+
+/* AI THINKING */
+.ai-thinking {
+  padding:0.8rem 1rem; border-top:1px solid var(--border);
+  font-size:0.65rem; color:var(--muted); min-height:48px;
+  display:flex; align-items:center; gap:0.5rem;
+}
+.thinking-dots span {
+  animation:blink 1s infinite;
+  color:var(--green);
+}
+.thinking-dots span:nth-child(2){animation-delay:0.2s}
+.thinking-dots span:nth-child(3){animation-delay:0.4s}
+@keyframes blink{0%,100%{opacity:0}50%{opacity:1}}
+
+/* SCORE */
+.score-grid { padding:0.8rem 1rem; display:grid; gap:0.5rem; }
+.score-row { display:flex; justify-content:space-between; font-size:0.7rem; padding:0.3rem 0; border-bottom:1px solid var(--border); }
+.score-row:last-child{border:none}
+.score-label { color:var(--muted); }
+.score-val { color:var(--green); font-family:'Orbitron',monospace; }
+
+/* MODAL */
+.modal-overlay {
+  position:fixed; inset:0; z-index:200;
+  background:rgba(0,0,0,0.85); backdrop-filter:blur(4px);
+  display:flex; align-items:center; justify-content:center;
+  display:none;
+}
+.modal-overlay.show { display:flex; }
+.modal {
+  background:var(--bg2); border:2px solid var(--green);
+  padding:2.5rem; text-align:center; max-width:400px; width:90%;
+  box-shadow:0 0 50px rgba(0,255,136,0.2);
+}
+.modal-title { font-family:'Orbitron',monospace; font-size:1.5rem; font-weight:900; margin-bottom:0.5rem; }
+.modal-sub { font-size:0.8rem; color:var(--muted); letter-spacing:2px; margin-bottom:1.5rem; }
+.modal-msg { font-size:0.85rem; color:var(--text); margin-bottom:2rem; line-height:1.6; }
+.modal-btns { display:flex; gap:1rem; justify-content:center; flex-wrap:wrap; }
+.modal-btn {
+  padding:0.7rem 1.5rem; border:1px solid; cursor:pointer;
+  font-family:'Orbitron',monospace; font-size:0.7rem; letter-spacing:2px;
+  text-transform:uppercase; transition:all 0.2s; background:transparent;
+}
+.modal-btn.primary { border-color:var(--green); color:var(--green); }
+.modal-btn.primary:hover { background:var(--green); color:var(--bg); }
+.modal-btn.secondary { border-color:var(--muted); color:var(--muted); }
+.modal-btn.secondary:hover { border-color:var(--cyan); color:var(--cyan); }
+
+/* PROMO BANNER */
+.promote-modal {
+  position:fixed; inset:0; z-index:150;
+  background:rgba(0,0,0,0.8); display:none;
+  align-items:center; justify-content:center;
+}
+.promote-modal.show { display:flex; }
+.promote-box {
+  background:var(--bg2); border:2px solid var(--yellow);
+  padding:2rem; text-align:center;
+}
+.promote-title { font-family:'Orbitron',monospace; color:var(--yellow); font-size:1rem; letter-spacing:3px; margin-bottom:1rem; }
+.promote-options { display:flex; gap:1rem; justify-content:center; flex-wrap:wrap; }
+.promote-btn {
+  font-size:2rem; padding:0.8rem; border:1px solid var(--border);
+  background:var(--bg); cursor:pointer; transition:all 0.2s; min-width:70px;
+}
+.promote-btn:hover { border-color:var(--yellow); box-shadow:0 0 10px var(--yellow); transform:scale(1.1); }
+.promote-label { font-size:0.6rem; color:var(--muted); letter-spacing:1px; }
+
+@media(max-width:900px){
+  .game-container{grid-template-columns:1fr; max-width:540px;}
+  .board{width:min(480px,calc(100vw-2rem));}
+  .panel{max-height:300px; overflow:hidden;}
+  .terminal-log{height:200px;}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <div class="logo">HACK<span>CHESS</span></div>
+    <div class="header-sub">Capture the Flag // Cyber Edition</div>
+  </div>
+  <div class="status-bar">
+    <div class="status-item">LEVEL: <span id="hdr-level">1</span></div>
+    <div class="status-item">MOVES: <span id="hdr-moves">0</span></div>
+    <div class="status-item">SCORE: <span id="hdr-score">0</span></div>
+  </div>
+</header>
+
+<div class="game-container">
+
+  <!-- LEFT PANEL -->
+  <div>
+    <div class="panel">
+      <div class="panel-title">DIFFICULTY</div>
+      <div class="level-section">
+        <div class="level-label">CURRENT LEVEL</div>
+        <div class="level-display" id="level-num">1</div>
+        <div class="level-name" id="level-name">SCRIPT KIDDIE</div>
+        <input type="range" class="level-slider" id="level-slider" min="1" max="20" value="1">
+        <div class="level-tiers">
+          <div class="tier active" data-min="1" data-max="4">🐣 Script Kiddie <span class="tier-range">1-4</span></div>
+          <div class="tier" data-min="5" data-max="8">🔍 Intern <span class="tier-range">5-8</span></div>
+          <div class="tier" data-min="9" data-max="12">⚔️ Pentester <span class="tier-range">9-12</span></div>
+          <div class="tier" data-min="13" data-max="16">🎯 Red Teamer <span class="tier-range">13-16</span></div>
+          <div class="tier" data-min="17" data-max="19">👁️ APT <span class="tier-range">17-19</span></div>
+          <div class="tier" data-min="20" data-max="20">💀 Zero Day <span class="tier-range">20</span></div>
+        </div>
+        <button class="btn-new" id="btn-new">▶ NEW GAME</button>
+      </div>
+    </div>
+
+    <div class="panel" style="margin-top:1rem;">
+      <div class="panel-title">PIECES</div>
+      <div class="pieces-list">
+        <div class="piece-row"><span class="piece-sym">♔</span><div class="piece-info"><div class="piece-name">TARGET SERVER</div><div class="piece-role">Protect at all costs</div></div></div>
+        <div class="piece-row"><span class="piece-sym">♕</span><div class="piece-info"><div class="piece-name">METASPLOIT</div><div class="piece-role">Most powerful exploit</div></div></div>
+        <div class="piece-row"><span class="piece-sym">♖</span><div class="piece-info"><div class="piece-name">NMAP SCANNER</div><div class="piece-role">Controls open files</div></div></div>
+        <div class="piece-row"><span class="piece-sym">♗</span><div class="piece-info"><div class="piece-name">BURP SUITE</div><div class="piece-role">Diagonal interceptor</div></div></div>
+        <div class="piece-row"><span class="piece-sym">♘</span><div class="piece-info"><div class="piece-name">HYDRA</div><div class="piece-role">Brute-forces gaps</div></div></div>
+        <div class="piece-row"><span class="piece-sym">♙</span><div class="piece-info"><div class="piece-name">SCRIPT</div><div class="piece-role">Front-line payload</div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CENTER — BOARD -->
+  <div class="board-section">
+    <div class="game-info-bar">
+      <div class="turn-indicator">
+        <div class="turn-dot white" id="turn-dot"></div>
+        <span id="turn-text">YOUR TURN — WHITE</span>
+      </div>
+      <div class="check-alert" id="check-alert">⚠ CHECK DETECTED</div>
+      <div style="font-size:0.65rem;color:var(--muted);" id="eval-bar">EVAL: +0.0</div>
+    </div>
+
+    <div class="captured-bar">
+      <span class="cap-label">CAPTURED:</span>
+      <span id="captured-white"></span>
+    </div>
+
+    <div class="board-wrapper">
+      <div class="board" id="board"></div>
+    </div>
+
+    <div class="captured-bar">
+      <span class="cap-label">AI TOOK:</span>
+      <span id="captured-black"></span>
+    </div>
+  </div>
+
+  <!-- RIGHT PANEL — LOG + SCORE -->
+  <div>
+    <div class="panel">
+      <div class="panel-title">TERMINAL LOG</div>
+      <div class="terminal-log" id="terminal-log">
+        <div class="log-entry log-system">// HackChess v1.0 initialized</div>
+        <div class="log-entry log-system">// White = You | Black = AI</div>
+        <div class="log-entry log-system">// Select a piece to begin...</div>
+      </div>
+      <div class="ai-thinking" id="ai-thinking">
+        <span style="color:var(--muted);">// awaiting player move</span>
+      </div>
+    </div>
+
+    <div class="panel" style="margin-top:1rem;">
+      <div class="panel-title">STATS</div>
+      <div class="score-grid">
+        <div class="score-row"><span class="score-label">GAMES WON</span><span class="score-val" id="stat-wins">0</span></div>
+        <div class="score-row"><span class="score-label">GAMES LOST</span><span class="score-val" id="stat-losses">0</span></div>
+        <div class="score-row"><span class="score-label">DRAWS</span><span class="score-val" id="stat-draws">0</span></div>
+        <div class="score-row"><span class="score-label">BEST LEVEL</span><span class="score-val" id="stat-best">1</span></div>
+        <div class="score-row"><span class="score-label">TOTAL MOVES</span><span class="score-val" id="stat-total">0</span></div>
+      </div>
+    </div>
+
+    <div class="panel" style="margin-top:1rem;">
+      <div class="panel-title">CONTROLS</div>
+      <div style="padding:0.8rem 1rem; font-size:0.65rem; color:var(--muted); line-height:2;">
+        <div>🖱️ Click piece to select</div>
+        <div>🖱️ Click target to move</div>
+        <div>♟️ Green dots = valid moves</div>
+        <div>🔴 Red ring = capture</div>
+        <div>⚠️ Yellow = last move</div>
+        <div>🏳️ Resign if stuck!</div>
+      </div>
+      <div style="padding:0 1rem 1rem; display:flex; gap:0.5rem;">
+        <button class="modal-btn secondary" style="flex:1;font-size:0.6rem;padding:0.5rem;" onclick="resignGame()">RESIGN</button>
+        <button class="modal-btn secondary" style="flex:1;font-size:0.6rem;padding:0.5rem;" onclick="offerDraw()">DRAW</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PROMOTION MODAL -->
+<div class="promote-modal" id="promote-modal">
+  <div class="promote-box">
+    <div class="promote-title">⬆ PAYLOAD UPGRADE</div>
+    <div style="font-size:0.75rem;color:var(--muted);margin-bottom:1rem;">Script reached enemy base — upgrade it!</div>
+    <div class="promote-options">
+      <div>
+        <button class="promote-btn" onclick="promotePawn('q')">♕</button>
+        <div class="promote-label">METASPLOIT</div>
+      </div>
+      <div>
+        <button class="promote-btn" onclick="promotePawn('r')">♖</button>
+        <div class="promote-label">NMAP</div>
+      </div>
+      <div>
+        <button class="promote-btn" onclick="promotePawn('b')">♗</button>
+        <div class="promote-label">BURP</div>
+      </div>
+      <div>
+        <button class="promote-btn" onclick="promotePawn('n')">♘</button>
+        <div class="promote-label">HYDRA</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- GAME OVER MODAL -->
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal">
+    <div class="modal-title" id="modal-title">GAME OVER</div>
+    <div class="modal-sub" id="modal-sub"></div>
+    <div class="modal-msg" id="modal-msg"></div>
+    <div class="modal-btns">
+      <button class="modal-btn primary" onclick="newGame()">▶ PLAY AGAIN</button>
+      <button class="modal-btn secondary" onclick="closeModal()">✕ CLOSE</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════
+// HACKCHESS ENGINE
+// ═══════════════════════════════════════════════════════
+
+const PIECES = {
+  wK:'♔', wQ:'♕', wR:'♖', wB:'♗', wN:'♘', wP:'♙',
+  bK:'♚', bQ:'♛', bR:'♜', bB:'♝', bN:'♞', bP:'♟',
+};
+
+const PIECE_VALUES = { p:100, n:320, b:330, r:500, q:900, k:20000 };
+
+// Position tables for evaluation
+const PAWN_TABLE = [
+  0,  0,  0,  0,  0,  0,  0,  0,
+  50, 50, 50, 50, 50, 50, 50, 50,
+  10, 10, 20, 30, 30, 20, 10, 10,
+  5,  5, 10, 25, 25, 10,  5,  5,
+  0,  0,  0, 20, 20,  0,  0,  0,
+  5, -5,-10,  0,  0,-10, -5,  5,
+  5, 10, 10,-20,-20, 10, 10,  5,
+  0,  0,  0,  0,  0,  0,  0,  0
+];
+const KNIGHT_TABLE = [
+  -50,-40,-30,-30,-30,-30,-40,-50,
+  -40,-20,  0,  0,  0,  0,-20,-40,
+  -30,  0, 10, 15, 15, 10,  0,-30,
+  -30,  5, 15, 20, 20, 15,  5,-30,
+  -30,  0, 15, 20, 20, 15,  0,-30,
+  -30,  5, 10, 15, 15, 10,  5,-30,
+  -40,-20,  0,  5,  5,  0,-20,-40,
+  -50,-40,-30,-30,-30,-30,-40,-50
+];
+const BISHOP_TABLE = [
+  -20,-10,-10,-10,-10,-10,-10,-20,
+  -10,  0,  0,  0,  0,  0,  0,-10,
+  -10,  0,  5, 10, 10,  5,  0,-10,
+  -10,  5,  5, 10, 10,  5,  5,-10,
+  -10,  0, 10, 10, 10, 10,  0,-10,
+  -10, 10, 10, 10, 10, 10, 10,-10,
+  -10,  5,  0,  0,  0,  0,  5,-10,
+  -20,-10,-10,-10,-10,-10,-10,-20
+];
+const ROOK_TABLE = [
+   0,  0,  0,  0,  0,  0,  0,  0,
+   5, 10, 10, 10, 10, 10, 10,  5,
+  -5,  0,  0,  0,  0,  0,  0, -5,
+  -5,  0,  0,  0,  0,  0,  0, -5,
+  -5,  0,  0,  0,  0,  0,  0, -5,
+  -5,  0,  0,  0,  0,  0,  0, -5,
+  -5,  0,  0,  0,  0,  0,  0, -5,
+   0,  0,  0,  5,  5,  0,  0,  0
+];
+const QUEEN_TABLE = [
+  -20,-10,-10, -5, -5,-10,-10,-20,
+  -10,  0,  0,  0,  0,  0,  0,-10,
+  -10,  0,  5,  5,  5,  5,  0,-10,
+  -5,  0,  5,  5,  5,  5,  0, -5,
+   0,  0,  5,  5,  5,  5,  0, -5,
+  -10,  5,  5,  5,  5,  5,  0,-10,
+  -10,  0,  5,  0,  0,  0,  0,-10,
+  -20,-10,-10, -5, -5,-10,-10,-20
+];
+const KING_MID = [
+  -30,-40,-40,-50,-50,-40,-40,-30,
+  -30,-40,-40,-50,-50,-40,-40,-30,
+  -30,-40,-40,-50,-50,-40,-40,-30,
+  -30,-40,-40,-50,-50,-40,-40,-30,
+  -20,-30,-30,-40,-40,-30,-30,-20,
+  -10,-20,-20,-20,-20,-20,-20,-10,
+   20, 20,  0,  0,  0,  0, 20, 20,
+   20, 30, 10,  0,  0, 10, 30, 20
+];
+
+// ─── GAME STATE ───────────────────────────────────────
+let board, turn, selected, validMoves, moveHistory, gameOver;
+let capturedWhite, capturedBlack;
+let castlingRights, enPassantSq, halfMoveClock, fullMoveNum;
+let pendingPromotion;
+let stats = { wins:0, losses:0, draws:0, best:1, total:0 };
+let currentLevel = 1;
+let lastMove = null;
+
+// ─── LEVEL CONFIG ─────────────────────────────────────
+const LEVEL_NAMES = [
+  '', // 0 placeholder
+  'SCRIPT KIDDIE','SCRIPT KIDDIE','SCRIPT KIDDIE','SCRIPT KIDDIE',
+  'INTERN','INTERN','INTERN','INTERN',
+  'PENTESTER','PENTESTER','PENTESTER','PENTESTER',
+  'RED TEAMER','RED TEAMER','RED TEAMER','RED TEAMER',
+  'APT','APT','APT',
+  'ZERO DAY'
+];
+
+// Search depth and config per level
+function getLevelConfig(lvl) {
+  if (lvl <= 4)  return { depth: 1, random: [0.9, 0.7, 0.5, 0.3][lvl-1], quiesce: false };
+  if (lvl <= 8)  return { depth: 2, random: [0.2, 0.15, 0.1, 0.05][lvl-5], quiesce: false };
+  if (lvl <= 12) return { depth: 3, random: [0.04, 0.03, 0.02, 0.01][lvl-9], quiesce: true };
+  if (lvl <= 16) return { depth: 4, random: 0, quiesce: true };
+  if (lvl <= 19) return { depth: 5, random: 0, quiesce: true };
+  return { depth: 6, random: 0, quiesce: true };
+}
+
+// ─── AI FLAVOR MESSAGES ──────────────────────────────
+const AI_MSGS = {
+  1:  ['// random.exe running...', '// no strategy loaded', '// clicking buttons'],
+  5:  ['// scanning for tactics...', '// basic eval loaded', '// checking captures'],
+  9:  ['// positional eval running...', '// calculating 3 moves deep', '// opening theory: basic'],
+  13: ['// deep search initiated...', '// threat analysis: active', '// red team protocols engaged'],
+  17: ['// APT module active...', '// full board analysis', '// 0day preparing...'],
+  20: ['// ZERO DAY EXPLOIT LOADING...', '// perfect play engaged', '// resistance is futile']
+};
+
+const CAPTURE_MSGS = [
+  'exploited vulnerability',
+  'brute-forced the defense',
+  'injected payload',
+  'bypassed firewall',
+  'escalated privileges',
+  'compromised endpoint',
+  'achieved code exec',
+  'popped the shell',
+];
+
+const PIECE_NAMES = {
+  p:'Script', n:'Hydra', b:'Burp Suite', r:'Nmap', q:'Metasploit', k:'Server'
+};
+
+// ─── BOARD INIT ───────────────────────────────────────
+function initBoard() {
+  board = [
+    ['bR','bN','bB','bQ','bK','bB','bN','bR'],
+    ['bP','bP','bP','bP','bP','bP','bP','bP'],
+    [null,null,null,null,null,null,null,null],
+    [null,null,null,null,null,null,null,null],
+    [null,null,null,null,null,null,null,null],
+    [null,null,null,null,null,null,null,null],
+    ['wP','wP','wP','wP','wP','wP','wP','wP'],
+    ['wR','wN','wB','wQ','wK','wB','wN','wR'],
+  ];
+  turn = 'w';
+  selected = null;
+  validMoves = [];
+  moveHistory = [];
+  gameOver = false;
+  capturedWhite = [];
+  capturedBlack = [];
+  castlingRights = { wK:true, wQ:true, bK:true, bQ:true };
+  enPassantSq = null;
+  halfMoveClock = 0;
+  fullMoveNum = 1;
+  pendingPromotion = null;
+  lastMove = null;
+}
+
+// ─── MOVE GENERATION ──────────────────────────────────
+function getPieceMoves(b, r, c, checkSafety=true) {
+  const piece = b[r][c];
+  if (!piece) return [];
+  const color = piece[0];
+  const type  = piece[1].toLowerCase();
+  let moves = [];
+
+  const add = (tr, tc, special='') => {
+    if (tr<0||tr>7||tc<0||tc>7) return;
+    const target = b[tr][tc];
+    if (target && target[0]===color) return;
+    moves.push({from:[r,c], to:[tr,tc], special});
+  };
+  const slide = (dr, dc) => {
+    let nr=r+dr, nc=c+dc;
+    while(nr>=0&&nr<=7&&nc>=0&&nc<=7) {
+      const t=b[nr][nc];
+      if (t) { if(t[0]!==color) add(nr,nc); break; }
+      add(nr,nc);
+      nr+=dr; nc+=dc;
+    }
+  };
+
+  switch(type) {
+    case 'p': {
+      const dir = color==='w' ? -1 : 1;
+      const startRow = color==='w' ? 6 : 1;
+      const promRow  = color==='w' ? 0 : 7;
+      // forward
+      if (!b[r+dir]?.[c]) {
+        const sp = (r+dir===promRow)?'promote':'';
+        add(r+dir, c, sp);
+        if (r===startRow && !b[r+dir*2]?.[c]) add(r+dir*2, c, 'double');
+      }
+      // captures
+      [-1,1].forEach(dc => {
+        const tr=r+dir, tc=c+dc;
+        if(tr<0||tr>7||tc<0||tc>7) return;
+        const t=b[tr][tc];
+        const sp=(tr===promRow)?'promote':'';
+        if(t && t[0]!==color) add(tr,tc,sp);
+        if(!t && enPassantSq && enPassantSq[0]===tr && enPassantSq[1]===tc) {
+          moves.push({from:[r,c],to:[tr,tc],special:'enpassant'});
+        }
+      });
+      break;
+    }
+    case 'n':
+      [[-2,-1],[-2,1],[-1,-2],[-1,2],[1,-2],[1,2],[2,-1],[2,1]].forEach(([dr,dc])=>add(r+dr,c+dc));
+      break;
+    case 'b':
+      [[-1,-1],[-1,1],[1,-1],[1,1]].forEach(([dr,dc])=>slide(dr,dc));
+      break;
+    case 'r':
+      [[-1,0],[1,0],[0,-1],[0,1]].forEach(([dr,dc])=>slide(dr,dc));
+      break;
+    case 'q':
+      [[-1,-1],[-1,1],[1,-1],[1,1],[-1,0],[1,0],[0,-1],[0,1]].forEach(([dr,dc])=>slide(dr,dc));
+      break;
+    case 'k': {
+      [[-1,-1],[-1,0],[-1,1],[0,-1],[0,1],[1,-1],[1,0],[1,1]].forEach(([dr,dc])=>add(r+dr,c+dc));
+      // Castling
+      if (color==='w' && r===7 && c===4) {
+        if (castlingRights.wK && !b[7][5] && !b[7][6] && b[7][7]==='wR')
+          if (!isAttacked(b,'w',7,4) && !isAttacked(b,'w',7,5) && !isAttacked(b,'w',7,6))
+            moves.push({from:[7,4],to:[7,6],special:'castle-k'});
+        if (castlingRights.wQ && !b[7][3] && !b[7][2] && !b[7][1] && b[7][0]==='wR')
+          if (!isAttacked(b,'w',7,4) && !isAttacked(b,'w',7,3) && !isAttacked(b,'w',7,2))
+            moves.push({from:[7,4],to:[7,2],special:'castle-q'});
+      }
+      if (color==='b' && r===0 && c===4) {
+        if (castlingRights.bK && !b[0][5] && !b[0][6] && b[0][7]==='bR')
+          if (!isAttacked(b,'b',0,4) && !isAttacked(b,'b',0,5) && !isAttacked(b,'b',0,6))
+            moves.push({from:[0,4],to:[0,6],special:'castle-k'});
+        if (castlingRights.bQ && !b[0][3] && !b[0][2] && !b[0][1] && b[0][0]==='bR')
+          if (!isAttacked(b,'b',0,4) && !isAttacked(b,'b',0,3) && !isAttacked(b,'b',0,2))
+            moves.push({from:[0,4],to:[0,2],special:'castle-q'});
+      }
+      break;
+    }
+  }
+  if (checkSafety) moves = moves.filter(m => !moveLeavesCheck(b, m, color));
+  return moves;
+}
+
+function getAllMoves(b, color, checkSafety=true) {
+  const moves = [];
+  for(let r=0;r<8;r++) for(let c=0;c<8;c++)
+    if(b[r][c] && b[r][c][0]===color) moves.push(...getPieceMoves(b,r,c,checkSafety));
+  return moves;
+}
+
+function isAttacked(b, byColor, r, c) {
+  const opp = byColor==='w'?'b':'w';
+  for(const [dr,dc] of [[-2,-1],[-2,1],[-1,-2],[-1,2],[1,-2],[1,2],[2,-1],[2,1]]) {
+    const tr=r+dr,tc=c+dc;
+    if(tr>=0&&tr<8&&tc>=0&&tc<8&&b[tr][tc]===opp+'N') return true;
+  }
+  for(const [dr,dc] of [[-1,0],[1,0],[0,-1],[0,1]]) {
+    let nr=r+dr,nc=c+dc;
+    while(nr>=0&&nr<8&&nc>=0&&nc<8){const p=b[nr][nc];if(p){if(p[0]===opp&&(p[1]==='R'||p[1]==='Q'))return true;break;}nr+=dr;nc+=dc;}
+  }
+  for(const [dr,dc] of [[-1,-1],[-1,1],[1,-1],[1,1]]) {
+    let nr=r+dr,nc=c+dc;
+    while(nr>=0&&nr<8&&nc>=0&&nc<8){const p=b[nr][nc];if(p){if(p[0]===opp&&(p[1]==='B'||p[1]==='Q'))return true;break;}nr+=dr;nc+=dc;}
+  }
+  const pawnDir=byColor==='w'?1:-1;
+  for(const dc of [-1,1]){const tr=r+pawnDir,tc=c+dc;if(tr>=0&&tr<8&&tc>=0&&tc<8&&b[tr][tc]===opp+'P')return true;}
+  for(const [dr,dc] of [[-1,-1],[-1,0],[-1,1],[0,-1],[0,1],[1,-1],[1,0],[1,1]]){const tr=r+dr,tc=c+dc;if(tr>=0&&tr<8&&tc>=0&&tc<8&&b[tr][tc]===opp+'K')return true;}
+  return false;
+}
+
+function findKing(b, color) {
+  for(let r=0;r<8;r++) for(let c=0;c<8;c++)
+    if(b[r][c]===(color+'K')) return [r,c];
+  return null;
+}
+
+function inCheck(b, color) {
+  const k = findKing(b, color);
+  return k ? isAttacked(b, color, k[0], k[1]) : false;
+}
+
+function moveLeavesCheck(b, move, color) {
+  const nb = applyMove(b, move);
+  return inCheck(nb, color);
+}
+
+function applyMove(b, move, promote='q') {
+  const nb = b.map(r=>[...r]);
+  const [fr,fc] = move.from;
+  const [tr,tc] = move.to;
+  const piece = nb[fr][fc];
+  nb[tr][tc] = piece;
+  nb[fr][fc] = null;
+
+  if (move.special==='enpassant') {
+    const epR = piece[0]==='w' ? tr+1 : tr-1;
+    nb[epR][tc] = null;
+  }
+  if (move.special==='castle-k') {
+    if (piece[0]==='w') { nb[7][5]='wR'; nb[7][7]=null; }
+    else { nb[0][5]='bR'; nb[0][7]=null; }
+  }
+  if (move.special==='castle-q') {
+    if (piece[0]==='w') { nb[7][3]='wR'; nb[7][0]=null; }
+    else { nb[0][3]='bR'; nb[0][0]=null; }
+  }
+  if (move.special==='promote' || move.special==='promote-auto') {
+    nb[tr][tc] = piece[0] + promote.toUpperCase();
+  }
+  return nb;
+}
+
+// ─── EVALUATION ───────────────────────────────────────
+function getPST(type, r, c, color) {
+  const idx = color==='w' ? r*8+c : (7-r)*8+c;
+  switch(type) {
+    case 'p': return PAWN_TABLE[idx];
+    case 'n': return KNIGHT_TABLE[idx];
+    case 'b': return BISHOP_TABLE[idx];
+    case 'r': return ROOK_TABLE[idx];
+    case 'q': return QUEEN_TABLE[idx];
+    case 'k': return KING_MID[idx];
+    default: return 0;
+  }
+}
+
+function evaluate(b) {
+  let score = 0;
+  for(let r=0;r<8;r++) for(let c=0;c<8;c++) {
+    const p = b[r][c];
+    if (!p) continue;
+    const color = p[0], type = p[1].toLowerCase();
+    const val = PIECE_VALUES[type] + getPST(type,r,c,color);
+    score += color==='w' ? val : -val;
+  }
+  return score;
+}
+
+// ─── MINIMAX WITH ALPHA-BETA ──────────────────────────
+function minimax(b, depth, alpha, beta, maximizing, color) {
+  const moves = getAllMoves(b, maximizing?'b':'w');
+  if (depth===0 || moves.length===0) return evaluate(b);
+
+  if (maximizing) {
+    let best = -Infinity;
+    for (const m of moves) {
+      const nb = applyMove(b, m);
+      const score = minimax(nb, depth-1, alpha, beta, false, color);
+      if (score>best) best=score;
+      if (score>alpha) alpha=score;
+      if (beta<=alpha) break;
+    }
+    return best;
+  } else {
+    let best = Infinity;
+    for (const m of moves) {
+      const nb = applyMove(b, m);
+      const score = minimax(nb, depth-1, alpha, beta, true, color);
+      if (score<best) best=score;
+      if (score<beta) beta=score;
+      if (beta<=alpha) break;
+    }
+    return best;
+  }
+}
+
+function getBestMove(b, level) {
+  const cfg = getLevelConfig(level);
+  const moves = getAllMoves(b, 'b');
+  if (!moves.length) return null;
+
+  // Random moves for low levels
+  if (cfg.random > 0 && Math.random() < cfg.random) {
+    return moves[Math.floor(Math.random()*moves.length)];
+  }
+
+  let best = null, bestScore = -Infinity;
+  const shuffled = [...moves].sort(()=>Math.random()-0.5);
+
+  for (const m of shuffled) {
+    const nb = applyMove(b, m);
+    const score = minimax(nb, cfg.depth-1, -Infinity, Infinity, false, 'b');
+    if (score > bestScore) { bestScore=score; best=m; }
+  }
+  return best;
+}
+
+// ─── GAME LOGIC ──────────────────────────────────────
+function squareName(r,c) {
+  return String.fromCharCode(97+c)+(8-r);
+}
+
+function getCaptureName(piece) {
+  return PIECE_NAMES[piece[1].toLowerCase()] || piece;
+}
+
+function executeMove(move, isAI=false, promoPiece='q') {
+  const [fr,fc] = move.from;
+  const [tr,tc] = move.to;
+  const piece = board[fr][fc];
+  const captured = board[tr][tc];
+  let capturedEP = null;
+
+  // Track captures
+  if (captured) {
+    (piece[0]==='w' ? capturedWhite : capturedBlack).push(captured);
+  }
+  if (move.special==='enpassant') {
+    const epR = piece[0]==='w' ? tr+1 : tr-1;
+    capturedEP = board[epR][tc];
+    board[epR][tc] = null;
+    (piece[0]==='w' ? capturedWhite : capturedBlack).push(capturedEP);
+  }
+
+  // Update castling rights
+  if (piece==='wK') { castlingRights.wK=false; castlingRights.wQ=false; }
+  if (piece==='bK') { castlingRights.bK=false; castlingRights.bQ=false; }
+  if (piece==='wR') { if(fc===0) castlingRights.wQ=false; if(fc===7) castlingRights.wK=false; }
+  if (piece==='bR') { if(fc===0) castlingRights.bQ=false; if(fc===7) castlingRights.bK=false; }
+
+  // En passant square
+  enPassantSq = (piece[1]==='P' && Math.abs(tr-fr)===2)
+    ? [(fr+tr)/2, tc] : null;
+
+  // Apply
+  board = applyMove(board, move, promoPiece);
+
+  // Switch turn
+  turn = turn==='w' ? 'b' : 'w';
+  if (turn==='w') fullMoveNum++;
+  stats.total++;
+
+  lastMove = move;
+
+  // Build log entry
+  const pName = PIECE_NAMES[piece[1].toLowerCase()];
+  const from = squareName(fr,fc);
+  const to   = squareName(tr,tc);
+  let logTxt = `${isAI?'[AI]':'[YOU]'} ${pName} ${from}→${to}`;
+  if (captured||capturedEP) {
+    const cName = getCaptureName(captured||capturedEP);
+    const msg = CAPTURE_MSGS[Math.floor(Math.random()*CAPTURE_MSGS.length)];
+    logTxt += ` — ${msg} ${cName}`;
+  }
+  if (move.special==='castle-k') logTxt = `${isAI?'[AI]':'[YOU]'} CASTLED KINGSIDE`;
+  if (move.special==='castle-q') logTxt = `${isAI?'[AI]':'[YOU]'} CASTLED QUEENSIDE`;
+
+  // Add to log
+  const entryClass = isAI ? 'log-black' : 'log-white';
+  const extraClass = (captured||capturedEP) ? ' log-capture' : '';
+  addLog(`<span class="${entryClass}${extraClass}">${logTxt}</span>`);
+
+  // Check/checkmate/stalemate detection
+  const nextColor = turn;
+  const nextMoves = getAllMoves(board, nextColor);
+  const isInCheck = inCheck(board, nextColor);
+
+  if (isInCheck) {
+    if (nextMoves.length===0) {
+      // Checkmate
+      addLog(`<span class="log-check">💀 CHECKMATE — ${nextColor==='w'?'AI WINS':'YOU WIN'}!</span>`);
+      endGame(nextColor==='w' ? 'loss' : 'win');
+      return;
+    } else {
+      addLog(`<span class="log-check">⚠ CHECK — ${nextColor==='w'?'YOUR':'AI'} king under attack!</span>`);
+    }
+  } else if (nextMoves.length===0) {
+    addLog(`<span class="log-system">// STALEMATE — Draw by no legal moves</span>`);
+    endGame('draw');
+    return;
+  }
+
+  // Fifty move rule
+  if (halfMoveClock >= 100) {
+    addLog(`<span class="log-system">// DRAW — 50 move rule</span>`);
+    endGame('draw');
+    return;
+  }
+
+  moveHistory.push(move);
+  renderBoard();
+  updateUI(isInCheck);
+
+  // AI turn
+  if (!gameOver && turn==='b') {
+    setTimeout(()=>doAIMove(), 300 + currentLevel*50);
+  }
+}
+
+function doAIMove() {
+  if (gameOver) return;
+  const cfg = getLevelConfig(currentLevel);
+  const key = [20,17,13,9,5,1].find(k=>currentLevel>=k);
+  const msgs = AI_MSGS[key] || AI_MSGS[1];
+  const msg = msgs[Math.floor(Math.random()*msgs.length)];
+
+  setThinking(`${msg} <span class="thinking-dots"><span>.</span><span>.</span><span>.</span></span>`);
+
+  setTimeout(()=>{
+    const move = getBestMove(board, currentLevel);
+    if (!move) { endGame('draw'); return; }
+
+    // Handle AI promotion
+    const piece = board[move.from[0]][move.from[1]];
+    const promoPiece = 'q'; // AI always promotes to queen
+
+    executeMove(move, true, promoPiece);
+    setThinking('// awaiting player move');
+  }, 200 + cfg.depth * 100);
+}
+
+function handleSquareClick(r, c) {
+  if (gameOver || turn!=='w') return;
+
+  const piece = board[r][c];
+
+  if (selected) {
+    // Try to move
+    const move = validMoves.find(m => m.to[0]===r && m.to[1]===c);
+    if (move) {
+      if (move.special==='promote') {
+        pendingPromotion = move;
+        document.getElementById('promote-modal').classList.add('show');
+        return;
+      }
+      selected = null; validMoves = [];
+      executeMove(move);
+      return;
+    }
+    // Re-select own piece
+    if (piece && piece[0]==='w') {
+      selected = [r,c];
+      validMoves = getPieceMoves(board, r, c);
+      renderBoard();
+      return;
+    }
+    selected = null; validMoves = [];
+    renderBoard();
+    return;
+  }
+
+  if (piece && piece[0]==='w') {
+    selected = [r,c];
+    validMoves = getPieceMoves(board, r, c);
+    renderBoard();
+  }
+}
+
+function promotePawn(type) {
+  document.getElementById('promote-modal').classList.remove('show');
+  if (!pendingPromotion) return;
+  const move = pendingPromotion;
+  pendingPromotion = null;
+  selected = null; validMoves = [];
+  executeMove(move, false, type);
+}
+
+// ─── RENDER ───────────────────────────────────────────
+function renderBoard() {
+  const boardEl = document.getElementById('board');
+  boardEl.innerHTML = '';
+  const inCheckColor = inCheck(board, turn) ? turn : null;
+  const kingPos = inCheckColor ? findKing(board, inCheckColor) : null;
+
+  for(let r=0;r<8;r++) for(let c=0;c<8;c++) {
+    const sq = document.createElement('div');
+    const isLight = (r+c)%2===0;
+    sq.className = `sq ${isLight?'light':'dark'}`;
+    sq.dataset.r = r; sq.dataset.c = c;
+
+    // Coordinates
+    if (c===7) { const coord=document.createElement('span'); coord.className='coord-rank'; coord.textContent=8-r; sq.appendChild(coord); }
+    if (r===7) { const coord=document.createElement('span'); coord.className='coord-file'; coord.textContent=String.fromCharCode(97+c); sq.appendChild(coord); }
+
+    // Last move highlight
+    if (lastMove && ((lastMove.from[0]===r&&lastMove.from[1]===c)||(lastMove.to[0]===r&&lastMove.to[1]===c)))
+      sq.classList.add('last-move');
+
+    // Selected
+    if (selected && selected[0]===r && selected[1]===c) sq.classList.add('selected');
+
+    // Move hints
+    const isHint = validMoves.some(m=>m.to[0]===r&&m.to[1]===c);
+    if (isHint) {
+      if (board[r][c]) sq.classList.add('capture-hint');
+      else sq.classList.add('move-hint');
+    }
+
+    // Check highlight
+    if (kingPos && kingPos[0]===r && kingPos[1]===c) sq.classList.add('in-check');
+
+    // Piece
+    const piece = board[r][c];
+    if (piece) {
+      const span = document.createElement('span');
+      span.className = `piece ${piece[0]==='w'?'white':'black'}`;
+      span.textContent = PIECES[piece];
+      sq.appendChild(span);
+    }
+
+    sq.addEventListener('click', ()=>handleSquareClick(r,c));
+    boardEl.appendChild(sq);
+  }
+
+  // Captured pieces
+  document.getElementById('captured-white').innerHTML = capturedBlack.map(p=>`<span class="cap-piece">${PIECES[p]}</span>`).join('');
+  document.getElementById('captured-black').innerHTML = capturedWhite.map(p=>`<span class="cap-piece">${PIECES[p]}</span>`).join('');
+}
+
+function updateUI(isInCheck) {
+  const turnDot = document.getElementById('turn-dot');
+  const turnText = document.getElementById('turn-text');
+  const checkAlert = document.getElementById('check-alert');
+
+  if (turn==='w') {
+    turnDot.className = 'turn-dot white';
+    turnText.textContent = 'YOUR TURN — WHITE';
+  } else {
+    turnDot.className = 'turn-dot black';
+    turnText.textContent = 'AI TURN — BLACK';
+  }
+
+  checkAlert.style.display = isInCheck ? 'block' : 'none';
+
+  // Rough eval
+  const ev = evaluate(board);
+  const evStr = ev===0 ? '+0.0' : ev>0 ? `+${(ev/100).toFixed(1)}` : `${(ev/100).toFixed(1)}`;
+  document.getElementById('eval-bar').textContent = `EVAL: ${evStr}`;
+
+  document.getElementById('hdr-moves').textContent = moveHistory.length;
+  document.getElementById('stat-total').textContent = stats.total;
+  document.getElementById('stat-wins').textContent  = stats.wins;
+  document.getElementById('stat-losses').textContent= stats.losses;
+  document.getElementById('stat-draws').textContent = stats.draws;
+  document.getElementById('stat-best').textContent  = stats.best;
+}
+
+function addLog(html) {
+  const log = document.getElementById('terminal-log');
+  const entry = document.createElement('div');
+  entry.className = 'log-entry';
+  const num = document.createElement('span');
+  num.className = 'log-num';
+  num.textContent = `${String(moveHistory.length+1).padStart(3,'0')} `;
+  entry.appendChild(num);
+  const content = document.createElement('span');
+  content.innerHTML = html;
+  entry.appendChild(content);
+  log.appendChild(entry);
+  log.scrollTop = log.scrollHeight;
+}
+
+function setThinking(html) {
+  document.getElementById('ai-thinking').innerHTML = html;
+}
+
+// ─── GAME END ─────────────────────────────────────────
+const WIN_MSGS = [
+  "System breach successful! You've compromised the AI's defenses.",
+  "Penetration test complete — target fully owned!",
+  "Root achieved! The AI's king has been captured.",
+  "Privilege escalation complete — you're running as root!",
+];
+const LOSS_MSGS = [
+  "SYSTEM COMPROMISED — The AI exploited a critical vulnerability.",
+  "Intrusion detected... too late. The AI breached your defenses.",
+  "Your king server has been pwned. Better patch your weaknesses.",
+  "The AI found a zero-day in your position. Next time, defend better!",
+];
+
+function endGame(result) {
+  gameOver = true;
+  if (result==='win') {
+    stats.wins++;
+    if (currentLevel > stats.best) stats.best = currentLevel;
+    showModal('🏆 SYSTEM PWNED!', `LEVEL ${currentLevel} — ${LEVEL_NAMES[currentLevel]} DEFEATED`, WIN_MSGS[Math.floor(Math.random()*WIN_MSGS.length)]);
+  } else if (result==='loss') {
+    stats.losses++;
+    showModal('💀 YOU\'VE BEEN PWNED', `LEVEL ${currentLevel} — ${LEVEL_NAMES[currentLevel]} WINS`, LOSS_MSGS[Math.floor(Math.random()*LOSS_MSGS.length)]);
+  } else {
+    stats.draws++;
+    showModal('🤝 DRAW', 'STALEMATE DETECTED', 'Neither side could achieve checkmate. The engagement ends in a draw.');
+  }
+  renderBoard();
+  updateUI(false);
+}
+
+function showModal(title, sub, msg) {
+  document.getElementById('modal-title').textContent = title;
+  document.getElementById('modal-sub').textContent = sub;
+  document.getElementById('modal-msg').textContent = msg;
+  document.getElementById('modal-overlay').classList.add('show');
+}
+function closeModal() { document.getElementById('modal-overlay').classList.remove('show'); }
+
+function resignGame() {
+  if (gameOver) return;
+  stats.losses++;
+  gameOver = true;
+  addLog('<span class="log-system">// WHITE RESIGNED — AI WINS</span>');
+  showModal('🏳️ RESIGNED', 'YOU SURRENDERED', "Sometimes the best hack is knowing when to retreat. Try again!");
+}
+
+function offerDraw() {
+  if (gameOver) return;
+  stats.draws++;
+  gameOver = true;
+  addLog('<span class="log-system">// DRAW AGREED</span>');
+  showModal('🤝 DRAW', 'MUTUAL AGREEMENT', 'Both sides agreed to end the engagement without a winner.');
+}
+
+// ─── NEW GAME ─────────────────────────────────────────
+function newGame() {
+  closeModal();
+  initBoard();
+  document.getElementById('terminal-log').innerHTML = `
+    <div class="log-entry log-system">// HackChess v1.0 — New game initialized</div>
+    <div class="log-entry log-system">// Level ${currentLevel}: ${LEVEL_NAMES[currentLevel]}</div>
+    <div class="log-entry log-system">// White (YOU) moves first</div>
+    <div class="log-entry log-system">// Objective: Checkmate the AI's Server (King)</div>
+  `;
+  setThinking('// awaiting player move');
+  renderBoard();
+  updateUI(false);
+}
+
+// ─── LEVEL CONTROL ────────────────────────────────────
+function setLevel(lvl) {
+  currentLevel = Math.max(1, Math.min(20, lvl));
+  document.getElementById('level-num').textContent = currentLevel;
+  document.getElementById('level-name').textContent = LEVEL_NAMES[currentLevel];
+  document.getElementById('hdr-level').textContent = currentLevel;
+  document.getElementById('level-slider').value = currentLevel;
+
+  const tiers = document.querySelectorAll('.tier');
+  tiers.forEach(t => {
+    const min=parseInt(t.dataset.min), max=parseInt(t.dataset.max);
+    t.classList.toggle('active', currentLevel>=min && currentLevel<=max);
+  });
+}
+
+document.getElementById('level-slider').addEventListener('input', function() {
+  setLevel(parseInt(this.value));
+});
+
+document.querySelectorAll('.tier').forEach(t => {
+  t.addEventListener('click', ()=>setLevel(parseInt(t.dataset.min)));
+});
+
+document.getElementById('btn-new').addEventListener('click', newGame);
+
+// ─── INIT ─────────────────────────────────────────────
+setLevel(1);
+newGame();
+</script>
+</body>
+</html>
