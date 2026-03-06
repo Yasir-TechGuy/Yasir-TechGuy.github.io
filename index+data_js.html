@@ -1,0 +1,862 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Yasir | Cybersecurity Portfolio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@300;400;500;600;700&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+  /* Fallback fonts in case Google Fonts fails */
+  @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&display=swap');
+  :root {
+    --font-mono: 'Share Tech Mono', 'Courier New', monospace;
+    --font-display: 'Orbitron', 'Arial Black', sans-serif;
+    --font-body: 'Rajdhani', 'Trebuchet MS', sans-serif;
+  }
+</style>
+<style>
+  :root {
+    --bg: #050a0e; --bg2: #0a1520; --bg3: #0d1f2d;
+    --green: #00ff88; --cyan: #00d4ff; --red: #ff3366;
+    --yellow: #ffd700; --text: #c8d8e8; --muted: #4a6070;
+    --border: #1a3040; --card: #0a1828;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html { scroll-behavior:smooth; }
+  body { background:var(--bg); color:var(--text); font-family:var(--font-body); font-size:16px; line-height:1.6; overflow-x:hidden; }
+  body::before { content:''; position:fixed; top:0;left:0;right:0;bottom:0; background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,255,136,0.015) 2px,rgba(0,255,136,0.015) 4px); pointer-events:none; z-index:1000; }
+  body::after { content:''; position:fixed; top:0;left:0;right:0;bottom:0; background-image:linear-gradient(var(--border) 1px,transparent 1px),linear-gradient(90deg,var(--border) 1px,transparent 1px); background-size:50px 50px; opacity:0.3; pointer-events:none; z-index:0; }
+
+  nav { position:fixed; top:0;left:0;right:0; z-index:100; background:rgba(5,10,14,0.95); border-bottom:1px solid var(--green); padding:0 2rem; display:flex; align-items:center; justify-content:space-between; height:60px; backdrop-filter:blur(10px); }
+  .nav-logo { font-family:var(--font-display); font-size:1.1rem; font-weight:700; color:var(--green); letter-spacing:2px; }
+  .nav-logo span { color:var(--cyan); }
+  .nav-links { display:flex; gap:1.5rem; list-style:none; }
+  .nav-links a { color:var(--muted); text-decoration:none; font-family:var(--font-mono); font-size:0.7rem; letter-spacing:2px; text-transform:uppercase; transition:color 0.2s; }
+  .nav-links a:hover { color:var(--green); }
+  .nav-status { display:flex; align-items:center; gap:0.5rem; font-family:var(--font-mono); font-size:0.7rem; color:var(--green); }
+  .status-dot { width:8px;height:8px; background:var(--green); border-radius:50%; animation:pulse 2s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.4;transform:scale(0.8)} }
+
+  .hero { position:relative; min-height:100vh; display:flex; align-items:center; justify-content:center; padding:80px 2rem 2rem; z-index:1; overflow:hidden; }
+  .hero-glow { position:absolute; width:600px;height:600px; background:radial-gradient(circle,rgba(0,255,136,0.08) 0%,transparent 70%); top:50%;left:50%; transform:translate(-50%,-50%); pointer-events:none; }
+  .hero-content { text-align:center; max-width:800px; animation:fadeUp 1s ease both; }
+  @keyframes fadeUp { from{opacity:0;transform:translateY(30px)} to{opacity:1;transform:translateY(0)} }
+  .hero-tag { font-family:var(--font-mono); font-size:0.75rem; color:var(--green); letter-spacing:4px; text-transform:uppercase; margin-bottom:1.5rem; display:flex; align-items:center; justify-content:center; gap:1rem; }
+  .hero-tag::before,.hero-tag::after { content:''; width:40px;height:1px; background:var(--green); opacity:0.5; }
+  .hero-name { font-family:var(--font-display); font-size:clamp(2.5rem,6vw,5rem); font-weight:900; line-height:1; margin-bottom:0.5rem; color:#fff; text-shadow:0 0 40px rgba(0,255,136,0.3); }
+  .hero-name .accent { color:var(--green); }
+  .hero-title { font-family:var(--font-mono); font-size:clamp(0.75rem,2vw,0.95rem); color:var(--cyan); letter-spacing:3px; margin-bottom:2rem; text-transform:uppercase; }
+  .hero-desc { font-size:1.1rem; color:var(--muted); max-width:500px; margin:0 auto 3rem; font-weight:300; }
+  .hero-stats { display:flex; justify-content:center; gap:3rem; margin-bottom:3rem; flex-wrap:wrap; }
+  .stat { text-align:center; }
+  .stat-num { font-family:var(--font-display); font-size:2rem; font-weight:700; color:var(--green); display:block; }
+  .stat-label { font-family:var(--font-mono); font-size:0.65rem; color:var(--muted); letter-spacing:2px; text-transform:uppercase; }
+  .hero-btns { display:flex; gap:1rem; justify-content:center; flex-wrap:wrap; }
+  .btn { font-family:var(--font-mono); font-size:0.75rem; letter-spacing:2px; text-transform:uppercase; padding:0.8rem 2rem; border:1px solid; text-decoration:none; transition:all 0.2s; cursor:pointer; display:inline-block; }
+  .btn-primary { background:var(--green); border-color:var(--green); color:var(--bg); font-weight:700; }
+  .btn-primary:hover { background:transparent; color:var(--green); box-shadow:0 0 20px rgba(0,255,136,0.3); }
+  .btn-secondary { background:transparent; border-color:var(--cyan); color:var(--cyan); }
+  .btn-secondary:hover { background:rgba(0,212,255,0.1); box-shadow:0 0 20px rgba(0,212,255,0.2); }
+
+  /* QUOTE TICKER */
+  .quote-bar { position:relative; z-index:1; background:var(--card); border-top:1px solid var(--border); border-bottom:1px solid var(--border); padding:0.8rem 2rem; text-align:center; font-family:var(--font-mono); font-size:0.75rem; color:var(--muted); letter-spacing:1px; min-height:40px; }
+  .quote-bar .q-text { color:var(--text); }
+  .quote-bar .q-author { color:var(--green); margin-left:1rem; }
+
+  section { position:relative; z-index:1; padding:5rem 2rem; max-width:1100px; margin:0 auto; }
+  .section-header { margin-bottom:3rem; display:flex; align-items:center; gap:1.5rem; }
+  .section-num { font-family:var(--font-display); font-size:0.7rem; color:var(--green); letter-spacing:2px; opacity:0.6; }
+  .section-title { font-family:var(--font-display); font-size:clamp(1.2rem,3vw,1.8rem); font-weight:700; color:#fff; letter-spacing:2px; }
+  .section-line { flex:1; height:1px; background:linear-gradient(90deg,var(--border),transparent); }
+
+  /* ABOUT */
+  .about-grid { display:grid; grid-template-columns:1fr 1fr; gap:2rem; align-items:start; }
+  .about-text p { color:var(--text); margin-bottom:1rem; font-size:1.05rem; font-weight:300; }
+  .about-text p strong { color:var(--green); font-weight:600; }
+  .about-info { background:var(--card); border:1px solid var(--border); border-left:3px solid var(--green); padding:1.5rem; }
+  .info-row { display:flex; justify-content:space-between; padding:0.6rem 0; border-bottom:1px solid var(--border); font-family:var(--font-mono); font-size:0.8rem; }
+  .info-row:last-child { border-bottom:none; }
+  .info-label { color:var(--muted); letter-spacing:1px; }
+  .info-value { color:var(--cyan); }
+
+  /* TERMINAL */
+  .terminal { background:#020c10; border:1px solid var(--green); padding:1.5rem; font-family:var(--font-mono); font-size:0.8rem; margin:1.5rem 0; }
+  .terminal-header { display:flex; gap:0.5rem; margin-bottom:1rem; padding-bottom:0.8rem; border-bottom:1px solid var(--border); }
+  .t-dot { width:10px;height:10px; border-radius:50%; }
+  .t-dot:nth-child(1){background:#ff5f56} .t-dot:nth-child(2){background:#ffbd2e} .t-dot:nth-child(3){background:#27c93f}
+  .t-title { margin-left:auto; color:var(--muted); font-size:0.65rem; letter-spacing:2px; }
+  .t-line { color:var(--muted); margin-bottom:0.3rem; }
+  .t-line .prompt { color:var(--green); }
+  .t-line .cmd { color:#fff; }
+  .t-line .out { color:var(--cyan); }
+  .cursor { display:inline-block; width:2px; height:1em; background:var(--green); animation:blink 1s infinite; vertical-align:text-bottom; margin-left:2px; }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+
+  /* SKILLS */
+  .skills-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:1.5rem; }
+  .skill-card { background:var(--card); border:1px solid var(--border); padding:1.5rem; transition:all 0.2s; position:relative; overflow:hidden; }
+  .skill-card::before { content:''; position:absolute; top:0;left:0; width:3px;height:100%; background:var(--green); transform:scaleY(0); transition:transform 0.2s; transform-origin:bottom; }
+  .skill-card:hover::before { transform:scaleY(1); }
+  .skill-card:hover { border-color:var(--green); transform:translateY(-3px); }
+  .skill-icon { font-size:1.5rem; margin-bottom:0.8rem; }
+  .skill-name { font-family:var(--font-display); font-size:0.8rem; font-weight:700; color:#fff; letter-spacing:2px; margin-bottom:0.5rem; text-transform:uppercase; }
+  .skill-desc { font-size:0.85rem; color:var(--muted); }
+  .skill-items { display:flex; flex-wrap:wrap; gap:0.4rem; margin-top:0.8rem; }
+  .skill-tag { font-family:var(--font-mono); font-size:0.65rem; padding:0.2rem 0.6rem; border:1px solid var(--border); color:var(--muted); letter-spacing:1px; transition:all 0.2s; }
+  .skill-card:hover .skill-tag { border-color:rgba(0,255,136,0.3); color:var(--green); }
+
+  /* CTF */
+  .ctf-grid { display:grid; gap:1rem; }
+  .ctf-card { background:var(--card); border:1px solid var(--border); padding:1.5rem; display:grid; grid-template-columns:auto 1fr auto auto; gap:1.5rem; align-items:center; transition:border-color 0.2s; text-decoration:none; color:inherit; }
+  .ctf-card:hover { border-color:var(--green); }
+  .ctf-num { font-family:var(--font-display); font-size:1.2rem; font-weight:700; color:var(--green); opacity:0.4; min-width:2rem; }
+  .ctf-info h3 { font-family:var(--font-display); font-size:0.85rem; color:#fff; letter-spacing:2px; margin-bottom:0.3rem; }
+  .ctf-info p { font-size:0.85rem; color:var(--muted); font-family:var(--font-mono); }
+  .ctf-tags { display:flex; gap:0.4rem; flex-wrap:wrap; }
+  .tag { font-family:var(--font-mono); font-size:0.6rem; padding:0.2rem 0.5rem; letter-spacing:1px; text-transform:uppercase; }
+  .tag-green { border:1px solid rgba(0,255,136,0.4); color:var(--green); }
+  .tag-cyan  { border:1px solid rgba(0,212,255,0.4); color:var(--cyan);  }
+  .tag-red   { border:1px solid rgba(255,51,102,0.4); color:var(--red);  }
+  .tag-yellow{ border:1px solid rgba(255,215,0,0.4);  color:var(--yellow);}
+  .ctf-status { font-family:var(--font-mono); font-size:0.7rem; color:var(--green); letter-spacing:1px; white-space:nowrap; }
+
+  /* BLOG */
+  .blog-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:1.5rem; }
+  .blog-card { background:var(--card); border:1px solid var(--border); padding:1.5rem; transition:all 0.2s; text-decoration:none; color:inherit; display:block; }
+  .blog-card:hover { border-color:var(--cyan); transform:translateY(-3px); }
+  .blog-card.coming-soon { border-style:dashed; opacity:0.5; pointer-events:none; }
+  .blog-cat { font-family:var(--font-mono); font-size:0.65rem; letter-spacing:2px; text-transform:uppercase; color:var(--cyan); margin-bottom:0.8rem; }
+  .blog-cat::before { content:'// '; opacity:0.5; }
+  .blog-title { font-family:var(--font-display); font-size:0.85rem; color:#fff; letter-spacing:1px; margin-bottom:0.8rem; line-height:1.4; }
+  .blog-excerpt { font-size:0.9rem; color:var(--muted); font-weight:300; margin-bottom:1rem; }
+  .blog-meta { font-family:var(--font-mono); font-size:0.65rem; color:var(--muted); letter-spacing:1px; display:flex; justify-content:space-between; border-top:1px solid var(--border); padding-top:0.8rem; }
+
+  /* METHODOLOGY */
+  .method-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:1rem; }
+  .method-step { background:var(--card); border:1px solid var(--border); padding:1.5rem; text-align:center; position:relative; transition:all 0.2s; }
+  .method-step:hover { border-color:var(--green); }
+  .method-step::after { content:'→'; position:absolute; right:-0.7rem; top:50%; transform:translateY(-50%); color:var(--green); font-size:1rem; z-index:2; }
+  .method-step:last-child::after { display:none; }
+  .method-num { font-family:var(--font-display); font-size:2rem; font-weight:900; color:var(--green); opacity:0.15; line-height:1; margin-bottom:0.5rem; }
+  .method-name { font-family:var(--font-display); font-size:0.7rem; color:#fff; letter-spacing:2px; text-transform:uppercase; margin-bottom:0.5rem; }
+  .method-desc { font-size:0.75rem; color:var(--muted); font-family:var(--font-mono); }
+
+  /* TOOLS */
+  .tools-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(130px,1fr)); gap:0.8rem; }
+  .tool-item { background:var(--card); border:1px solid var(--border); padding:1rem; text-align:center; transition:all 0.2s; cursor:default; }
+  .tool-item:hover { border-color:var(--green); background:rgba(0,255,136,0.05); }
+  .tool-icon { font-size:1.5rem; margin-bottom:0.5rem; }
+  .tool-name { font-family:var(--font-mono); font-size:0.7rem; color:var(--text); letter-spacing:1px; }
+  .tool-cat  { font-family:var(--font-mono); font-size:0.55rem; color:var(--muted); letter-spacing:1px; margin-top:0.2rem; }
+
+  /* PROGRESS */
+  .progress-grid { display:grid; gap:1.5rem; }
+  .progress-item { background:var(--card); border:1px solid var(--border); padding:1.2rem 1.5rem; }
+  .progress-item.inactive { opacity:0.4; }
+  .progress-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:0.8rem; }
+  .progress-name { font-family:var(--font-display); font-size:0.75rem; color:#fff; letter-spacing:2px; }
+  .progress-pct { font-family:var(--font-mono); font-size:0.75rem; color:var(--green); }
+  .progress-bar { height:4px; background:var(--border); position:relative; overflow:hidden; }
+  .progress-fill { height:100%; background:linear-gradient(90deg,var(--green),var(--cyan)); transition:width 1.5s ease; position:relative; }
+  .progress-fill::after { content:''; position:absolute; right:0;top:-2px; width:8px;height:8px; background:var(--green); border-radius:50%; box-shadow:0 0 8px var(--green); }
+
+  /* ACHIEVEMENTS */
+  .achievements-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:1rem; }
+  .achievement { background:var(--card); border:1px solid var(--border); padding:1.2rem; display:flex; align-items:center; gap:1rem; transition:all 0.2s; }
+  .achievement.earned { border-color:rgba(0,255,136,0.3); }
+  .achievement.locked { opacity:0.35; filter:grayscale(1); }
+  .achievement:hover { transform:translateY(-2px); }
+  .ach-icon { font-size:1.8rem; }
+  .ach-name { font-family:var(--font-display); font-size:0.7rem; color:#fff; letter-spacing:1px; margin-bottom:0.2rem; }
+  .ach-desc { font-family:var(--font-mono); font-size:0.6rem; color:var(--muted); }
+
+  /* CERTS */
+  .certs-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:1rem; }
+  .cert-card { background:var(--card); border:1px solid rgba(255,215,0,0.3); padding:1.5rem; text-align:center; text-decoration:none; color:inherit; display:block; transition:all 0.2s; }
+  .cert-card:hover { border-color:var(--yellow); transform:translateY(-3px); }
+  .cert-icon { font-size:2rem; margin-bottom:0.8rem; }
+  .cert-name { font-family:var(--font-display); font-size:0.85rem; color:var(--yellow); letter-spacing:2px; margin-bottom:0.3rem; }
+  .cert-issuer { font-family:var(--font-mono); font-size:0.7rem; color:var(--muted); }
+  .cert-date { font-family:var(--font-mono); font-size:0.65rem; color:var(--green); margin-top:0.5rem; }
+
+  /* COMING SOON BANNER */
+  .coming-soon-banner { background:var(--card); border:1px dashed var(--border); padding:3rem; text-align:center; opacity:0.6; }
+  .coming-soon-banner h3 { font-family:var(--font-display); font-size:1rem; color:var(--yellow); letter-spacing:3px; margin-bottom:0.5rem; }
+  .coming-soon-banner p { font-family:var(--font-mono); font-size:0.75rem; color:var(--muted); letter-spacing:1px; }
+
+  /* CONTACT */
+  .contact-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:1rem; }
+  .contact-card { background:var(--card); border:1px solid var(--border); padding:1.5rem; text-align:center; text-decoration:none; color:inherit; transition:all 0.2s; display:block; }
+  .contact-card:hover { border-color:var(--green); transform:translateY(-3px); }
+  .contact-card.inactive { opacity:0.4; pointer-events:none; }
+  .contact-icon { font-size:1.8rem; margin-bottom:0.8rem; }
+  .contact-name { font-family:var(--font-display); font-size:0.75rem; color:#fff; letter-spacing:2px; margin-bottom:0.3rem; }
+  .contact-handle { font-family:var(--font-mono); font-size:0.7rem; color:var(--green); }
+
+  footer { position:relative; z-index:1; border-top:1px solid var(--border); padding:2rem; text-align:center; font-family:var(--font-mono); font-size:0.7rem; color:var(--muted); letter-spacing:2px; }
+  footer span { color:var(--green); }
+
+  .reveal { opacity:0; transform:translateY(20px); transition:opacity 0.6s ease,transform 0.6s ease; }
+  .reveal.visible { opacity:1; transform:translateY(0); }
+
+  @media(max-width:768px){
+    .nav-links{display:none}
+    .about-grid{grid-template-columns:1fr}
+    .ctf-card{grid-template-columns:auto 1fr;gap:1rem}
+    .ctf-tags,.ctf-status{grid-column:2}
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo" id="nav-logo">YASIR<span>.SEC</span></div>
+  <ul class="nav-links">
+    <li><a href="#about">About</a></li>
+    <li><a href="#skills">Skills</a></li>
+    <li><a href="#ctf">CTF</a></li>
+    <li><a href="#blog">Blog</a></li>
+    <li><a href="#methodology">Method</a></li>
+    <li><a href="#tools">Tools</a></li>
+    <li><a href="#achievements">Badges</a></li>
+    <li><a href="#lab">Lab</a></li>
+    <li><a href="#games">Games</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+  <div class="nav-status">
+    <div class="status-dot"></div>
+    <span id="nav-status-text">LOADING</span>
+  </div>
+</nav>
+
+<div class="hero">
+  <div class="hero-glow"></div>
+  <div class="hero-content">
+    <div class="hero-tag" id="hero-tag"></div>
+    <h1 class="hero-name" id="hero-name"></h1>
+    <div class="hero-title" id="hero-title"></div>
+    <p class="hero-desc" id="hero-desc"></p>
+    <div class="hero-stats" id="hero-stats"></div>
+    <div class="hero-btns">
+      <a href="#ctf" class="btn btn-primary">View CTF Write-ups</a>
+      <a href="#contact" class="btn btn-secondary">Get In Touch</a>
+    </div>
+  </div>
+</div>
+
+<!-- QUOTE BAR -->
+<div class="quote-bar" id="quote-bar"></div>
+
+<!-- ABOUT -->
+<section id="about">
+  <div class="section-header reveal">
+    <span class="section-num">01</span>
+    <h2 class="section-title">ABOUT</h2>
+    <div class="section-line"></div>
+  </div>
+  <div class="about-grid reveal">
+    <div class="about-text">
+      <div id="about-text"></div>
+      <div class="terminal">
+        <div class="terminal-header">
+          <div class="t-dot"></div><div class="t-dot"></div><div class="t-dot"></div>
+          <span class="t-title" id="terminal-title"></span>
+        </div>
+        <div class="t-line"><span class="prompt">yasir@kali:~$ </span><span class="cmd">whoami</span></div>
+        <div class="t-line"><span class="out">junior-penetration-tester</span></div>
+        <div class="t-line"><span class="prompt">yasir@kali:~$ </span><span class="cmd">cat goals.txt</span></div>
+        <div id="terminal-goals"></div>
+        <div class="t-line"><span class="prompt">yasir@kali:~$ </span><span class="cursor"></span></div>
+      </div>
+    </div>
+    <div class="about-info" id="about-info"></div>
+  </div>
+</section>
+
+<!-- CERTIFICATIONS (shown only when earned) -->
+<section id="certs" style="display:none">
+  <div class="section-header reveal">
+    <span class="section-num">🏅</span>
+    <h2 class="section-title">CERTIFICATIONS</h2>
+    <div class="section-line"></div>
+  </div>
+  <div class="certs-grid reveal" id="certs-grid"></div>
+</section>
+
+<!-- SKILLS -->
+<section id="skills">
+  <div class="section-header reveal">
+    <span class="section-num">02</span>
+    <h2 class="section-title">SKILLS</h2>
+    <div class="section-line"></div>
+  </div>
+  <div class="skills-grid" id="skills-grid"></div>
+</section>
+
+<!-- CTF -->
+<section id="ctf">
+  <div class="section-header reveal">
+    <span class="section-num">03</span>
+    <h2 class="section-title">CTF WRITE-UPS</h2>
+    <div class="section-line"></div>
+  </div>
+  <div class="ctf-grid" id="ctf-grid"></div>
+  <div style="text-align:center;margin-top:2rem;">
+    <a href="https://github.com/Yasir-TechGuy/CTF-Rooms-Write-up" target="_blank" class="btn btn-secondary">View All on GitHub →</a>
+  </div>
+</section>
+
+<!-- BLOG -->
+<section id="blog">
+  <div class="section-header reveal">
+    <span class="section-num">04</span>
+    <h2 class="section-title">BLOG</h2>
+    <div class="section-line"></div>
+  </div>
+  <div class="blog-grid" id="blog-grid"></div>
+</section>
+
+<!-- METHODOLOGY -->
+<section id="methodology">
+  <div class="section-header reveal">
+    <span class="section-num">05</span>
+    <h2 class="section-title">METHODOLOGY</h2>
+    <div class="section-line"></div>
+  </div>
+  <div class="method-grid reveal" id="method-grid"></div>
+</section>
+
+<!-- TOOLS -->
+<section id="tools">
+  <div class="section-header reveal">
+    <span class="section-num">06</span>
+    <h2 class="section-title">TOOLS</h2>
+    <div class="section-line"></div>
+  </div>
+  <div class="tools-grid" id="tools-grid"></div>
+</section>
+
+<!-- LEARNING PATH -->
+<section id="progress">
+  <div class="section-header reveal">
+    <span class="section-num">07</span>
+    <h2 class="section-title">LEARNING PATH</h2>
+    <div class="section-line"></div>
+  </div>
+  <div class="progress-grid reveal" id="progress-grid"></div>
+</section>
+
+<!-- ACHIEVEMENTS -->
+<section id="achievements">
+  <div class="section-header reveal">
+    <span class="section-num">08</span>
+    <h2 class="section-title">ACHIEVEMENTS</h2>
+    <div class="section-line"></div>
+  </div>
+  <div class="achievements-grid reveal" id="achievements-grid"></div>
+</section>
+
+<!-- HACK LAB -->
+<section id="lab">
+  <div class="section-header reveal">
+    <span class="section-num">09</span>
+    <h2 class="section-title">HACK LAB</h2>
+    <div class="section-line"></div>
+  </div>
+  <div id="lab-content" class="reveal"></div>
+</section>
+
+<!-- GAMES -->
+<section id="games">
+  <div class="section-header reveal">
+    <span class="section-num">10</span>
+    <h2 class="section-title">GAMES</h2>
+    <div class="section-line"></div>
+  </div>
+  <div id="games-content" class="reveal"></div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact">
+  <div class="section-header reveal">
+    <span class="section-num">11</span>
+    <h2 class="section-title">CONTACT</h2>
+    <div class="section-line"></div>
+  </div>
+  <div class="contact-grid reveal" id="contact-grid"></div>
+</section>
+
+<footer>
+  <p id="footer-text"></p>
+  <p style="margin-top:0.5rem;opacity:0.5;" id="footer-sub"></p>
+</footer>
+
+
+<script>
+// ============================================================
+// YASIR.SEC — PORTFOLIO DATA FILE
+// ============================================================
+// This is the ONLY file you need to edit to update your site!
+// Follow the examples carefully. Don't delete the brackets {} [] or commas ,
+// ============================================================
+
+const PORTFOLIO_DATA = {
+
+  // ── PERSONAL INFO ────────────────────────────────────────
+  profile: {
+    name: "Yasir",
+    title: "Junior Penetration Tester",
+    subtitle: "Cybersecurity Student // TryHackMe // Jr Pentester Path",
+    description: "Breaking things to understand how to fix them. Documenting the journey from zero to security professional.",
+    location: "Ibadan, Nigeria 🇳🇬",
+    status: "Actively Learning", // Change to "Open to Work", "Employed", etc.
+    tryhackme_points: "94+",
+    platform: "TryHackMe",
+    terminal_goals: [
+      "Complete Jr Pentester Path",
+      "Earn eJPT / CEH certification",
+      "Land first security role",
+    ],
+  },
+
+  // ── STATS (hero section numbers) ─────────────────────────
+  stats: [
+    { num: "6",   label: "CTFs Completed" },
+    { num: "94+", label: "TryHackMe Points" },
+    { num: "5",   label: "CVEs Exploited" },
+    // ADD MORE: { num: "1", label: "Certifications" },
+  ],
+
+  // ── SOCIAL LINKS ─────────────────────────────────────────
+  socials: [
+    { icon: "🐙", name: "GitHub",    handle: "Yasir-TechGuy",   url: "https://github.com/Yasir-TechGuy",               active: true  },
+    { icon: "✍️", name: "Medium",    handle: "@donyaskid0609",  url: "https://medium.com/@donyaskid0609",              active: true  },
+    { icon: "🎯", name: "TryHackMe", handle: "Active Learner",  url: "https://tryhackme.com",                          active: true  },
+    { icon: "💼", name: "LinkedIn",  handle: "Coming Soon",     url: "#",                                              active: false },
+    // ADD MORE: { icon: "🐦", name: "Twitter", handle: "@yourhandle", url: "https://twitter.com/yourhandle", active: true },
+  ],
+
+  // ── CERTIFICATIONS ───────────────────────────────────────
+  // Add each certification you earn here!
+  certifications: [
+    // EXAMPLE (remove // to activate):
+    // { name: "eJPT", issuer: "eLearnSecurity", date: "Dec 2026", icon: "🏅", url: "" },
+    // { name: "CEH",  issuer: "EC-Council",     date: "2027",     icon: "🎓", url: "" },
+  ],
+  // Set to true once you have at least one cert
+  show_certifications: false,
+
+  // ── CTF WRITE-UPS ─────────────────────────────────────────
+  // Most recent first! Add new CTFs at the TOP of this list.
+  ctfs: [
+    {
+      num: "06",
+      name: "Tomghost",
+      description: "CVE-2020-1938 Ghostcat · Apache Tomcat AJP · PGP Cracking · sudo zip",
+      tags: [
+        { label: "CVE",        color: "red"    },
+        { label: "Metasploit", color: "cyan"   },
+        { label: "PGP",        color: "green"  },
+      ],
+      url: "https://github.com/Yasir-TechGuy/CTF-Rooms-Write-up/tree/main/Tomghost",
+      date: "Mar 5, 2026",
+      difficulty: "Easy",
+      completed: true,
+    },
+    {
+      num: "05",
+      name: "Brooklyn Nine Nine",
+      description: "Steganography · FTP Anonymous · Hydra SSH · nano/less GTFOBins · 2 Attack Paths",
+      tags: [
+        { label: "Stego",     color: "yellow" },
+        { label: "Hydra",     color: "cyan"   },
+        { label: "Dual Path", color: "green"  },
+      ],
+      url: "https://github.com/Yasir-TechGuy/CTF-Rooms-Write-up/tree/main/Brooklyn%2099",
+      date: "Mar 4, 2026",
+      difficulty: "Easy",
+      completed: true,
+    },
+    {
+      num: "04",
+      name: "Bounty Hacker",
+      description: "FTP Anonymous · Credential Discovery · Hydra SSH Brute Force · sudo tar GTFOBins",
+      tags: [
+        { label: "FTP",    color: "cyan"  },
+        { label: "Hydra",  color: "green" },
+        { label: "PrivEsc",color: "red"   },
+      ],
+      url: "https://github.com/Yasir-TechGuy/CTF-Rooms-Write-up/tree/main/Bounty-Hacker",
+      date: "Mar 4, 2026",
+      difficulty: "Easy",
+      completed: true,
+    },
+    {
+      num: "03",
+      name: "Easy Peasy",
+      description: "Multi-port scan · Base64/62/Binary/ROT13 · GOST hash · Steganography · Cron job abuse",
+      tags: [
+        { label: "Encoding", color: "yellow" },
+        { label: "Stego",    color: "cyan"   },
+        { label: "Cron",     color: "red"    },
+      ],
+      url: "https://github.com/Yasir-TechGuy/CTF-Rooms-Write-up/tree/main/Easy-Peasy",
+      date: "Mar 2026",
+      difficulty: "Medium",
+      completed: true,
+    },
+    {
+      num: "02",
+      name: "Pickle Rick",
+      description: "Web enumeration · Page source · robots.txt · Command injection · Sudo abuse",
+      tags: [
+        { label: "Web",       color: "green" },
+        { label: "CmdInject", color: "cyan"  },
+        { label: "Sudo",      color: "red"   },
+      ],
+      url: "https://github.com/Yasir-TechGuy/CTF-Rooms-Write-up/tree/main/Prickle_Rick",
+      date: "Mar 2026",
+      difficulty: "Easy",
+      completed: true,
+    },
+    {
+      num: "01",
+      name: "Love Letter Locker",
+      description: "Valentine CTF 2026 · IDOR · Web Hacking",
+      tags: [
+        { label: "IDOR", color: "cyan"  },
+        { label: "Web",  color: "green" },
+      ],
+      url: "#",
+      date: "Feb 2026",
+      difficulty: "Easy",
+      completed: true,
+    },
+    // ── ADD NEW CTF HERE (copy this block) ──
+    // {
+    //   num: "07",
+    //   name: "Room Name",
+    //   description: "Short description of what you did",
+    //   tags: [
+    //     { label: "Tag1", color: "green" },   // colors: green, cyan, red, yellow
+    //     { label: "Tag2", color: "cyan"  },
+    //   ],
+    //   url: "https://github.com/Yasir-TechGuy/CTF-Rooms-Write-up/tree/main/FolderName",
+    //   date: "Apr 2026",
+    //   difficulty: "Easy",  // Easy / Medium / Hard
+    //   completed: true,
+    // },
+  ],
+
+  // ── BLOG POSTS ────────────────────────────────────────────
+  // Add new blog posts at the TOP. Set coming_soon: true for drafts.
+  blog_posts: [
+    {
+      category: "CTF Write-up",
+      title: "Easy Peasy — TryHackMe CTF Write-up",
+      excerpt: "Full walkthrough covering multi-port scanning, encoding chains, steganography and cron job privilege escalation.",
+      url: "https://medium.com/@donyaskid0609/easy-peasy-tryhackme-ctf-writeup-99527f6ac31e",
+      platform: "Medium",
+      date: "Mar 2026",
+      coming_soon: false,
+    },
+    {
+      category: "Tips & Tricks",
+      title: "GTFOBins — Your Privilege Escalation Cheat Sheet",
+      excerpt: "A practical guide to GTFOBins. Covers tar, nano, less, zip and common pitfalls with placeholder paths.",
+      url: "#",
+      platform: "Coming Soon",
+      date: "—",
+      coming_soon: true,
+    },
+    {
+      category: "Learning Notes",
+      title: "My TryHackMe Jr Pentester Journey — Month 1",
+      excerpt: "Progress update: completed modules, CTF rooms, lessons learned and what's coming next.",
+      url: "#",
+      platform: "Coming Soon",
+      date: "—",
+      coming_soon: true,
+    },
+    {
+      category: "Cybersecurity Tips",
+      title: "5 Things to Check on Every CTF Web Challenge",
+      excerpt: "Page source, robots.txt, headers, cookies, directory busting — the checklist I use on every web challenge.",
+      url: "#",
+      platform: "Coming Soon",
+      date: "—",
+      coming_soon: true,
+    },
+    // ── ADD NEW BLOG POST HERE ──
+    // {
+    //   category: "CTF Write-up",   // or "Tips & Tricks" / "Learning Notes" / "Cybersecurity Tips"
+    //   title: "Your Post Title",
+    //   excerpt: "Short description of the post.",
+    //   url: "https://medium.com/...",
+    //   platform: "Medium",
+    //   date: "Apr 2026",
+    //   coming_soon: false,
+    // },
+  ],
+
+  // ── SKILLS ────────────────────────────────────────────────
+  skills: [
+    { icon: "🔍", name: "Reconnaissance",       desc: "Port scanning, service enumeration, OSINT",          tags: ["Nmap", "Gobuster", "Dirb", "OSINT"]              },
+    { icon: "🌐", name: "Web Hacking",           desc: "OWASP Top 10, authentication bypass, IDOR",          tags: ["Burp Suite", "SQLi", "XSS", "IDOR"]              },
+    { icon: "🔑", name: "Exploitation",          desc: "CVE exploitation, brute-forcing, password attacks",  tags: ["Hydra", "Metasploit", "John", "CVEs"]            },
+    { icon: "⬆️", name: "Privilege Escalation",  desc: "sudo misconfig, SUID, cron jobs, GTFOBins",          tags: ["GTFOBins", "sudo -l", "Cron", "SUID"]           },
+    { icon: "🕵️", name: "Steganography",         desc: "Hidden data extraction, passphrase cracking",        tags: ["Steghide", "Stegseek", "CyberChef"]             },
+    { icon: "📝", name: "Documentation",         desc: "Professional reports, CTF write-ups, GitHub",        tags: ["Reports", "Markdown", "GitHub"]                  },
+    // ADD MORE: { icon: "🛡️", name: "Blue Team", desc: "Log analysis, SIEM, threat hunting", tags: ["Splunk", "ELK", "Wireshark"] },
+  ],
+
+  // ── TOOLS ─────────────────────────────────────────────────
+  tools: [
+    { icon: "🗺️", name: "Nmap",       category: "Recon"          },
+    { icon: "🕷️", name: "Gobuster",   category: "Enumeration"    },
+    { icon: "🔥", name: "Burp Suite", category: "Web Hacking"    },
+    { icon: "💧", name: "Hydra",      category: "Brute Force"    },
+    { icon: "🎯", name: "Metasploit", category: "Exploitation"   },
+    { icon: "🔨", name: "John",       category: "Password Crack" },
+    { icon: "🔐", name: "Hashcat",    category: "Password Crack" },
+    { icon: "🖼️", name: "Steghide",   category: "Steganography"  },
+    { icon: "⚡", name: "Stegseek",   category: "Steganography"  },
+    { icon: "🍳", name: "CyberChef",  category: "Encoding"       },
+    { icon: "🔒", name: "GPG/PGP",    category: "Crypto"         },
+    { icon: "📚", name: "GTFOBins",   category: "PrivEsc Ref"    },
+    // ADD MORE: { icon: "🦈", name: "Wireshark", category: "Network Analysis" },
+  ],
+
+  // ── LEARNING PATH PROGRESS ────────────────────────────────
+  learning_path: [
+    { name: "Pre-Security",                                  pct: 100, active: true  },
+    { name: "Intro to Cybersecurity",                        pct: 100, active: true  },
+    { name: "Jr Pentester — Intro to Web Hacking",           pct: 40,  active: true  },
+    { name: "Burp Suite Module",                             pct: 0,   active: false },
+    { name: "Metasploit + Privilege Escalation",             pct: 0,   active: false },
+    // ADD MORE as you progress:
+    // { name: "Active Directory Basics", pct: 0, active: false },
+  ],
+
+  // ── METHODOLOGY STEPS ────────────────────────────────────
+  methodology: [
+    { num: "01", name: "Recon",      desc: "Nmap full scan, service detection, OS fingerprint"       },
+    { num: "02", name: "Enumerate",  desc: "Web dirs, FTP anon, SMB shares, service versions"        },
+    { num: "03", name: "Exploit",    desc: "CVE search, brute force, injection, file upload"         },
+    { num: "04", name: "Escalate",   desc: "sudo -l, SUID, cron jobs, GTFOBins, writable files"      },
+    { num: "05", name: "Document",   desc: "Report findings, write-up, GitHub publish"               },
+  ],
+
+  // ── MOTIVATIONAL QUOTES ───────────────────────────────────
+  // These rotate on the site. Add as many as you like!
+  quotes: [
+    { text: "The quieter you become, the more you can hear.",          author: "Kali Linux"         },
+    { text: "Hacking is not a crime, it's an art.",                   author: "Unknown"            },
+    { text: "The best defense is understanding the offense.",          author: "Security Proverb"   },
+    { text: "Every expert was once a beginner.",                       author: "Unknown"            },
+    { text: "Try harder.",                                             author: "Offensive Security" },
+    { text: "Root is just a sudo away.",                              author: "GTFOBins"           },
+    // ADD YOUR OWN:
+    // { text: "Your quote here", author: "Author" },
+  ],
+
+  // ── HACK LAB ─────────────────────────────────────────────
+  // Set coming_soon: false and add items when your lab is ready!
+  hack_lab: {
+    coming_soon: true,
+    description: "Personal home lab setup, vulnerable VMs, custom scripts and tools. Under construction!",
+    items: [
+      // { name: "Home Lab Setup",     desc: "VirtualBox + Kali + Vulnerable VMs", status: "Planning",    icon: "🖥️" },
+      // { name: "Custom Nmap Scripts",desc: "Automated recon scripts",             status: "In Progress", icon: "📜" },
+    ],
+  },
+
+  // ── GAMES (future feature) ───────────────────────────────
+  games: {
+    coming_soon: true,
+    description: "Interactive security challenges and mini-games. Coming soon!",
+    items: [
+      // { name: "Hash Cracker Game", desc: "Guess the hash type", url: "#", icon: "🎮" },
+      // { name: "CTF Quiz",          desc: "Test your knowledge", url: "#", icon: "🧠" },
+    ],
+  },
+
+  // ── ACHIEVEMENTS / BADGES ────────────────────────────────
+  achievements: [
+    { icon: "🏆", name: "First Blood",     desc: "Completed first CTF room",              earned: true  },
+    { icon: "🔥", name: "On a Roll",       desc: "Completed 5 CTFs in a row",             earned: true  },
+    { icon: "🎯", name: "CVE Hunter",      desc: "Exploited a real-world CVE",            earned: true  },
+    { icon: "🕵️", name: "Stego Master",    desc: "Cracked steganography challenge",       earned: true  },
+    { icon: "⬆️", name: "Root Seeker",     desc: "Achieved root on 5+ machines",         earned: true  },
+    { icon: "📝", name: "Documenter",      desc: "Published 5+ write-ups on GitHub",     earned: true  },
+    { icon: "🎓", name: "Certified",       desc: "Earned first security certification",  earned: false },
+    { icon: "💼", name: "Professional",    desc: "Landed first security job",            earned: false },
+    // ADD MORE: { icon: "🛡️", name: "Defender", desc: "Completed blue team challenge", earned: false },
+  ],
+
+};
+
+</script>
+<script>
+const D = PORTFOLIO_DATA;
+
+// HERO
+document.getElementById('hero-tag').textContent = D.profile.title;
+document.getElementById('hero-name').innerHTML = D.profile.name + '<span class="accent">.</span>';
+document.getElementById('hero-title').textContent = D.profile.subtitle;
+document.getElementById('hero-desc').textContent = D.profile.description;
+document.getElementById('nav-status-text').textContent = D.profile.status.toUpperCase();
+document.getElementById('terminal-title').textContent = D.profile.name.toUpperCase() + '@KALI ~ TERMINAL';
+document.getElementById('footer-text').innerHTML = D.profile.name.toUpperCase() + '<span>.SEC</span> // BUILT WITH ☕ AND PERSISTENCE // <span>© 2026</span>';
+document.getElementById('footer-sub').textContent = 'TryHackMe Junior Penetration Tester Path // ' + D.profile.location;
+
+// STATS
+document.getElementById('hero-stats').innerHTML = D.stats.map(s =>
+  `<div class="stat"><span class="stat-num">${s.num}</span><span class="stat-label">${s.label}</span></div>`
+).join('');
+
+// QUOTE ROTATOR
+let qIdx = 0;
+function showQuote() {
+  const q = D.quotes[qIdx % D.quotes.length];
+  document.getElementById('quote-bar').innerHTML = `<span class="q-text">"${q.text}"</span><span class="q-author">— ${q.author}</span>`;
+  qIdx++;
+}
+showQuote();
+setInterval(showQuote, 6000);
+
+// TERMINAL GOALS
+document.getElementById('terminal-goals').innerHTML = D.profile.terminal_goals.map(g =>
+  `<div class="t-line"><span class="out">→ ${g}</span></div>`
+).join('');
+
+// ABOUT INFO
+document.getElementById('about-text').innerHTML = `
+  <p>I'm <strong>${D.profile.name}</strong>, a cybersecurity student actively working through the <strong>${D.profile.platform} Junior Penetration Tester</strong> learning path.</p>
+  <p>My approach: <strong>learn by doing</strong>. Every CTF I complete reinforces real-world pentesting skills — enumeration, exploitation, privilege escalation, and documentation.</p>
+  <p>I believe in understanding the <strong>why</strong> behind every technique, not just copying commands.</p>`;
+
+document.getElementById('about-info').innerHTML = `
+  <div class="info-row"><span class="info-label">STATUS</span><span class="info-value">${D.profile.status}</span></div>
+  <div class="info-row"><span class="info-label">PATH</span><span class="info-value">Jr Pentester — ${D.profile.platform}</span></div>
+  <div class="info-row"><span class="info-label">CTFS DONE</span><span class="info-value">${D.ctfs.filter(c=>c.completed).length} Rooms Completed</span></div>
+  <div class="info-row"><span class="info-label">PLATFORM</span><span class="info-value">${D.profile.platform}</span></div>
+  <div class="info-row"><span class="info-label">POINTS</span><span class="info-value">${D.profile.tryhackme_points}</span></div>
+  <div class="info-row"><span class="info-label">LOCATION</span><span class="info-value">${D.profile.location}</span></div>`;
+
+// CERTIFICATIONS
+if (D.show_certifications && D.certifications.length > 0) {
+  document.getElementById('certs').style.display = 'block';
+  document.getElementById('certs-grid').innerHTML = D.certifications.map(c =>
+    `<a href="${c.url||'#'}" target="_blank" class="cert-card reveal">
+      <div class="cert-icon">${c.icon}</div>
+      <div class="cert-name">${c.name}</div>
+      <div class="cert-issuer">${c.issuer}</div>
+      <div class="cert-date">${c.date}</div>
+    </a>`).join('');
+}
+
+// SKILLS
+document.getElementById('skills-grid').innerHTML = D.skills.map(s =>
+  `<div class="skill-card reveal">
+    <div class="skill-icon">${s.icon}</div>
+    <div class="skill-name">${s.name}</div>
+    <p class="skill-desc">${s.desc}</p>
+    <div class="skill-items">${s.tags.map(t=>`<span class="skill-tag">${t}</span>`).join('')}</div>
+  </div>`).join('');
+
+// CTF
+document.getElementById('ctf-grid').innerHTML = D.ctfs.map(c =>
+  `<a href="${c.url}" target="${c.url==='#'?'_self':'_blank'}" class="ctf-card reveal" ${!c.completed?'style="opacity:0.4;pointer-events:none;"':''}>
+    <div class="ctf-num">${c.num}</div>
+    <div class="ctf-info"><h3>${c.name}</h3><p>${c.description}</p></div>
+    <div class="ctf-tags">${c.tags.map(t=>`<span class="tag tag-${t.color}">${t.label}</span>`).join('')}</div>
+    <div class="ctf-status">${c.completed?'✅ PWNED':'🔒 LOCKED'}</div>
+  </a>`).join('');
+
+// BLOG
+document.getElementById('blog-grid').innerHTML = D.blog_posts.map(b =>
+  `<a href="${b.coming_soon?'#':b.url}" target="${b.coming_soon?'_self':'_blank'}" class="blog-card reveal ${b.coming_soon?'coming-soon':''}">
+    <div class="blog-cat">${b.category}</div>
+    <div class="blog-title">${b.title}</div>
+    <p class="blog-excerpt">${b.excerpt}</p>
+    <div class="blog-meta"><span>${b.platform}</span><span>${b.date}</span></div>
+  </a>`).join('');
+
+// METHODOLOGY
+document.getElementById('method-grid').innerHTML = D.methodology.map(m =>
+  `<div class="method-step">
+    <div class="method-num">${m.num}</div>
+    <div class="method-name">${m.name}</div>
+    <div class="method-desc">${m.desc}</div>
+  </div>`).join('');
+
+// TOOLS
+document.getElementById('tools-grid').innerHTML = D.tools.map(t =>
+  `<div class="tool-item reveal">
+    <div class="tool-icon">${t.icon}</div>
+    <div class="tool-name">${t.name}</div>
+    <div class="tool-cat">${t.category}</div>
+  </div>`).join('');
+
+// PROGRESS
+document.getElementById('progress-grid').innerHTML = D.learning_path.map(p =>
+  `<div class="progress-item ${p.active?'':'inactive'}">
+    <div class="progress-header">
+      <span class="progress-name">${p.name}</span>
+      <span class="progress-pct">${p.pct===0&&!p.active?'Upcoming':p.pct+'%'}</span>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" style="width:${p.pct}%"></div></div>
+  </div>`).join('');
+
+// ACHIEVEMENTS
+document.getElementById('achievements-grid').innerHTML = D.achievements.map(a =>
+  `<div class="achievement ${a.earned?'earned':'locked'} reveal">
+    <div class="ach-icon">${a.icon}</div>
+    <div><div class="ach-name">${a.name}</div><div class="ach-desc">${a.desc}</div></div>
+  </div>`).join('');
+
+// HACK LAB
+document.getElementById('lab-content').innerHTML = D.hack_lab.coming_soon
+  ? `<div class="coming-soon-banner"><h3>⚗️ HACK LAB — COMING SOON</h3><p>${D.hack_lab.description}</p></div>`
+  : `<div class="tools-grid">${D.hack_lab.items.map(i=>`<div class="tool-item"><div class="tool-icon">${i.icon}</div><div class="tool-name">${i.name}</div><div class="tool-cat">${i.status}</div></div>`).join('')}</div>`;
+
+// GAMES
+document.getElementById('games-content').innerHTML = D.games.coming_soon
+  ? `<div class="coming-soon-banner"><h3>🎮 GAMES — COMING SOON</h3><p>${D.games.description}</p></div>`
+  : `<div class="tools-grid">${D.games.items.map(i=>`<a href="${i.url}" class="tool-item"><div class="tool-icon">${i.icon}</div><div class="tool-name">${i.name}</div><div class="tool-cat">Play</div></a>`).join('')}</div>`;
+
+// CONTACT
+document.getElementById('contact-grid').innerHTML = D.socials.map(s =>
+  `<a href="${s.url}" target="_blank" class="contact-card ${s.active?'':'inactive'}">
+    <div class="contact-icon">${s.icon}</div>
+    <div class="contact-name">${s.name}</div>
+    <div class="contact-handle">${s.handle}</div>
+  </a>`).join('');
+
+// SCROLL REVEAL
+const reveals = document.querySelectorAll('.reveal');
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach((entry, i) => {
+    if (entry.isIntersecting) setTimeout(() => entry.target.classList.add('visible'), i * 60);
+  });
+}, { threshold: 0.1 });
+reveals.forEach(el => observer.observe(el));
+
+// PROGRESS BARS ANIMATE ON SCROLL
+const bars = document.querySelectorAll('.progress-fill');
+const barObs = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      const w = e.target.style.width;
+      e.target.style.width = '0%';
+      setTimeout(() => e.target.style.width = w, 200);
+    }
+  });
+}, { threshold: 0.5 });
+bars.forEach(b => barObs.observe(b));
+</script>
+</body>
+</html>
