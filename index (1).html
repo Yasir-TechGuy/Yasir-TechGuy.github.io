@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Yasir Abdulsalam — Junior Penetration Tester</title>
+<meta name="description" content="Yasir Abdulsalam — Junior Penetration Tester focused on web application security, network exploitation, and SIEM. Based in Ibadan, Nigeria.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ── TOKENS ─────────────────────────────────────────────────────────── */
+:root {
+  --bg:       #060e18;
+  --surface:  #0c1929;
+  --deep:     #0f2035;
+  --sky:      #38bdf8;
+  --sky-dim:  #0ea5e9;
+  --emerald:  #10b981;
+  --amber:    #f59e0b;
+  --rose:     #f43f5e;
+  --text:     #cbd5e1;
+  --muted:    #3d5a73;
+  --border:   #1a3348;
+  --mono: 'JetBrains Mono', 'Courier New', monospace;
+  --sans: 'Inter', system-ui, sans-serif;
+}
+
+/* ── RESET ──────────────────────────────────────────────────────────── */
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:16px;line-height:1.7;overflow-x:hidden}
+a{color:inherit;text-decoration:none}
+img{display:block}
+
+/* ── NAV ────────────────────────────────────────────────────────────── */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:100;
+  background:rgba(6,14,24,0.96);
+  border-bottom:1px solid var(--border);
+  padding:0 2.5rem;
+  height:56px;
+  display:flex;align-items:center;justify-content:space-between;
+  backdrop-filter:blur(14px);
+}
+.nav-logo{font-family:var(--mono);font-size:0.85rem;font-weight:700;color:var(--sky);letter-spacing:0.04em}
+.nav-logo em{color:var(--muted);font-style:normal}
+.nav-links{display:flex;gap:2rem;list-style:none}
+.nav-links a{font-family:var(--mono);font-size:0.68rem;letter-spacing:0.1em;color:var(--muted);text-transform:uppercase;transition:color .15s}
+.nav-links a:hover{color:var(--sky)}
+.nav-pill{display:flex;align-items:center;gap:0.5rem;font-family:var(--mono);font-size:0.65rem;color:var(--emerald);letter-spacing:0.1em;text-transform:uppercase}
+.pulse{width:6px;height:6px;border-radius:50%;background:var(--emerald);animation:pulse 2.5s ease infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.25}}
+
+/* ── HERO ───────────────────────────────────────────────────────────── */
+.hero{
+  min-height:100vh;
+  display:grid;grid-template-columns:1fr 1fr;
+  align-items:center;gap:4rem;
+  padding:80px 2.5rem 3rem;
+  max-width:1120px;margin:0 auto;
+}
+.hero-photo{
+  width:100px;height:100px;border-radius:50%;
+  border:2px solid var(--border);object-fit:cover;
+  margin-bottom:1.75rem;
+}
+.hero-eyebrow{
+  font-family:var(--mono);font-size:0.65rem;
+  color:var(--sky);letter-spacing:0.14em;text-transform:uppercase;
+  margin-bottom:0.6rem;
+}
+.hero-name{
+  font-family:var(--mono);font-size:clamp(2rem,4vw,3rem);
+  font-weight:700;color:#e2e8f0;line-height:1.1;
+  letter-spacing:-0.01em;margin-bottom:0.4rem;
+}
+.hero-role{
+  font-family:var(--mono);font-size:0.82rem;
+  color:var(--sky);letter-spacing:0.04em;
+  margin-bottom:1.5rem;
+}
+.hero-bio{
+  font-size:0.975rem;color:var(--text);font-weight:300;
+  line-height:1.8;max-width:400px;margin-bottom:2.25rem;
+}
+.hero-stats{display:flex;gap:2.5rem;margin-bottom:2.25rem;flex-wrap:wrap}
+.stat-num{font-family:var(--mono);font-size:1.6rem;font-weight:700;color:#e2e8f0;display:block;line-height:1}
+.stat-label{font-family:var(--mono);font-size:0.58rem;color:var(--muted);letter-spacing:0.12em;text-transform:uppercase;margin-top:0.3rem;display:block}
+.hero-btns{display:flex;gap:0.75rem;flex-wrap:wrap}
+.btn{
+  font-family:var(--mono);font-size:0.68rem;letter-spacing:0.1em;
+  text-transform:uppercase;padding:0.65rem 1.5rem;
+  border:1px solid;transition:all .15s;display:inline-block;
+}
+.btn-primary{background:var(--sky);border-color:var(--sky);color:#060e18;font-weight:700}
+.btn-primary:hover{background:transparent;color:var(--sky)}
+.btn-outline{background:transparent;border-color:var(--border);color:var(--text)}
+.btn-outline:hover{border-color:var(--sky);color:var(--sky)}
+
+/* ── TERMINAL ───────────────────────────────────────────────────────── */
+.terminal{
+  background:#020c15;
+  border:1px solid var(--border);
+  border-radius:6px;overflow:hidden;
+  font-family:var(--mono);font-size:0.78rem;
+}
+.term-bar{
+  background:var(--surface);
+  border-bottom:1px solid var(--border);
+  padding:0.55rem 1rem;
+  display:flex;align-items:center;gap:0.45rem;
+}
+.td{width:10px;height:10px;border-radius:50%}
+.td:nth-child(1){background:#ff5f56}
+.td:nth-child(2){background:#ffbd2e}
+.td:nth-child(3){background:#27c93f}
+.term-title{margin-left:auto;font-size:0.6rem;color:var(--muted);letter-spacing:0.08em}
+.term-body{padding:1.2rem 1.25rem;line-height:2.1}
+.tl{margin-bottom:0}
+.tp{color:var(--emerald)}
+.tc{color:#e2e8f0}
+.to{color:var(--sky);padding-left:1.4rem;display:block;margin-bottom:0.1rem}
+.cursor{display:inline-block;width:8px;height:1em;background:var(--sky);vertical-align:text-bottom;animation:blink 1.2s step-end infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+
+/* ── SECTION LAYOUT ─────────────────────────────────────────────────── */
+section{padding:5rem 2.5rem;max-width:1120px;margin:0 auto}
+.section-header{display:flex;align-items:center;gap:1.25rem;margin-bottom:3rem}
+.sec-label{font-family:var(--mono);font-size:0.62rem;color:var(--sky);letter-spacing:0.14em;text-transform:uppercase;white-space:nowrap}
+.sec-title{font-family:var(--mono);font-size:clamp(0.9rem,2.5vw,1.3rem);font-weight:700;color:#e2e8f0;letter-spacing:0.02em;white-space:nowrap}
+.sec-rule{flex:1;height:1px;background:linear-gradient(90deg,var(--border),transparent)}
+
+/* ── ABOUT ──────────────────────────────────────────────────────────── */
+.about-grid{display:grid;grid-template-columns:1.2fr 0.8fr;gap:3rem;align-items:start}
+.about-bio p{font-size:0.975rem;color:var(--text);font-weight:300;margin-bottom:1.2rem;line-height:1.8}
+.about-bio p strong{color:#e2e8f0;font-weight:500}
+.about-info{background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--sky);padding:1.5rem}
+.info-row{display:flex;justify-content:space-between;padding:0.55rem 0;border-bottom:1px solid var(--border);font-family:var(--mono);font-size:0.73rem;gap:1rem}
+.info-row:last-child{border-bottom:none}
+.info-k{color:var(--muted);letter-spacing:0.08em;text-transform:uppercase;white-space:nowrap}
+.info-v{color:var(--sky);text-align:right}
+
+/* ── SKILLS ─────────────────────────────────────────────────────────── */
+.skills-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1.1rem}
+.skill-card{
+  background:var(--surface);border:1px solid var(--border);
+  padding:1.5rem;transition:border-color .15s;
+  position:relative;overflow:hidden;
+}
+.skill-card::before{content:'';position:absolute;top:0;left:0;bottom:0;width:3px;background:var(--sky);opacity:0;transition:opacity .15s}
+.skill-card:hover{border-color:rgba(56,189,248,.35)}
+.skill-card:hover::before{opacity:1}
+.skill-name{font-family:var(--mono);font-size:0.8rem;font-weight:700;color:#e2e8f0;letter-spacing:0.04em;margin-bottom:0.5rem}
+.skill-desc{font-size:0.83rem;color:var(--muted);margin-bottom:1rem;line-height:1.55}
+.skill-tags{display:flex;flex-wrap:wrap;gap:0.4rem}
+.stag{font-family:var(--mono);font-size:0.6rem;padding:0.2rem 0.55rem;border:1px solid var(--border);color:var(--muted);letter-spacing:0.06em;transition:all .15s}
+.skill-card:hover .stag{border-color:rgba(56,189,248,.25);color:var(--sky)}
+
+/* ── PROJECTS ───────────────────────────────────────────────────────── */
+.projects-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:1.1rem}
+.proj-card{
+  background:var(--surface);border:1px solid var(--border);
+  padding:1.5rem;display:flex;flex-direction:column;
+  transition:border-color .15s;position:relative;
+}
+.proj-card.featured{border-color:rgba(56,189,248,.22)}
+.proj-card::before{content:'';position:absolute;top:0;left:0;bottom:0;width:3px;background:var(--sky);opacity:0;transition:opacity .15s}
+.proj-card:hover{border-color:rgba(56,189,248,.4)}
+.proj-card:hover::before{opacity:1}
+.proj-cat{font-family:var(--mono);font-size:0.58rem;color:var(--sky);letter-spacing:0.14em;text-transform:uppercase;margin-bottom:0.6rem}
+.proj-title{font-family:var(--mono);font-size:0.88rem;font-weight:700;color:#e2e8f0;margin-bottom:0.75rem;line-height:1.4}
+.proj-desc{font-size:0.84rem;color:var(--muted);line-height:1.65;flex:1;margin-bottom:1.2rem}
+.proj-tags{display:flex;flex-wrap:wrap;gap:0.4rem;margin-bottom:1.2rem}
+.ptag{font-family:var(--mono);font-size:0.58rem;padding:0.2rem 0.5rem;border:1px solid var(--border);color:var(--muted);letter-spacing:0.06em}
+.proj-link{font-family:var(--mono);font-size:0.62rem;color:var(--sky);letter-spacing:0.1em;text-transform:uppercase;opacity:.55;transition:opacity .15s;align-self:flex-start}
+.proj-card:hover .proj-link{opacity:1}
+
+/* ── CTF LIST ───────────────────────────────────────────────────────── */
+.ctf-list{display:grid;gap:0.65rem}
+.ctf-row{
+  background:var(--surface);border:1px solid var(--border);
+  padding:1rem 1.5rem;
+  display:grid;grid-template-columns:2rem 1fr auto;
+  gap:1.5rem;align-items:center;
+  transition:border-color .15s;
+}
+.ctf-row:hover{border-color:rgba(56,189,248,.35)}
+.ctf-row.featured{border-left:3px solid var(--sky)}
+.ctf-idx{font-family:var(--mono);font-size:0.68rem;color:var(--muted);letter-spacing:0.06em}
+.ctf-name{font-family:var(--mono);font-size:0.84rem;font-weight:700;color:#e2e8f0;margin-bottom:0.2rem}
+.ctf-tech{font-size:0.78rem;color:var(--muted);font-weight:300}
+.ctf-solved{
+  font-family:var(--mono);font-size:0.58rem;color:var(--emerald);
+  letter-spacing:0.1em;text-transform:uppercase;
+  background:rgba(16,185,129,.08);
+  border:1px solid rgba(16,185,129,.25);
+  padding:0.2rem 0.6rem;white-space:nowrap;
+}
+
+/* ── CERTIFICATIONS ─────────────────────────────────────────────────── */
+.certs-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:1rem}
+.cert-card{
+  background:var(--surface);border:1px solid var(--border);
+  padding:1.25rem 1.5rem;
+  display:flex;align-items:center;gap:1rem;
+}
+.cert-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.cert-dot.earned{background:var(--emerald)}
+.cert-dot.progress{background:var(--amber)}
+.cert-dot.planned{background:var(--muted)}
+.cert-name{font-family:var(--mono);font-size:0.78rem;font-weight:700;color:#e2e8f0;margin-bottom:0.2rem;line-height:1.3}
+.cert-issuer{font-size:0.75rem;color:var(--muted)}
+.cert-when{font-family:var(--mono);font-size:0.6rem;margin-top:0.25rem;letter-spacing:0.06em}
+.cert-when.earned{color:var(--emerald)}
+.cert-when.progress{color:var(--amber)}
+.cert-when.planned{color:var(--muted)}
+
+/* ── TOOLS ──────────────────────────────────────────────────────────── */
+.tools-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(118px,1fr));gap:0.65rem}
+.tool-item{
+  background:var(--surface);border:1px solid var(--border);
+  padding:1rem;text-align:center;transition:border-color .15s;
+}
+.tool-item:hover{border-color:rgba(56,189,248,.3)}
+.tool-name{font-family:var(--mono);font-size:0.7rem;color:#e2e8f0;letter-spacing:0.04em;margin-bottom:0.25rem}
+.tool-cat{font-family:var(--mono);font-size:0.56rem;color:var(--muted);letter-spacing:0.1em;text-transform:uppercase}
+
+/* ── CONTACT ────────────────────────────────────────────────────────── */
+.contact-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem}
+.contact-card{
+  background:var(--surface);border:1px solid var(--border);
+  padding:1.5rem;text-align:center;
+  transition:border-color .15s;display:block;
+}
+.contact-card:hover{border-color:rgba(56,189,248,.4)}
+.contact-name{font-family:var(--mono);font-size:0.78rem;font-weight:700;color:#e2e8f0;margin-bottom:0.4rem;letter-spacing:0.04em}
+.contact-handle{font-family:var(--mono);font-size:0.68rem;color:var(--sky)}
+
+/* ── FOOTER ─────────────────────────────────────────────────────────── */
+footer{
+  border-top:1px solid var(--border);padding:2rem 2.5rem;
+  text-align:center;font-family:var(--mono);
+  font-size:0.62rem;color:var(--muted);letter-spacing:0.1em;
+}
+footer span{color:var(--sky)}
+
+/* ── REVEAL ─────────────────────────────────────────────────────────── */
+.reveal{opacity:0;transform:translateY(16px);transition:opacity .55s ease,transform .55s ease}
+.reveal.visible{opacity:1;transform:translateY(0)}
+
+/* ── RESPONSIVE ─────────────────────────────────────────────────────── */
+@media(max-width:768px){
+  .hero{grid-template-columns:1fr;min-height:auto;padding-top:5rem;gap:2.5rem}
+  .about-grid{grid-template-columns:1fr}
+  .nav-links{display:none}
+  .ctf-row{grid-template-columns:1fr auto;gap:1rem}
+  .ctf-idx{display:none}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">yasir<em>.sec</em></div>
+  <ul class="nav-links">
+    <li><a href="#about">About</a></li>
+    <li><a href="#skills">Skills</a></li>
+    <li><a href="#projects">Projects</a></li>
+    <li><a href="#ctf">CTF</a></li>
+    <li><a href="#certs">Certs</a></li>
+    <li><a href="#tools">Tools</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+  <div class="nav-pill"><div class="pulse"></div><span>Open to work</span></div>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div>
+    <img
+      src="https://raw.githubusercontent.com/Yasir-TechGuy/Yasir-TechGuy.github.io/main/asset/yasir.jpg"
+      alt="Yasir Abdulsalam" class="hero-photo">
+    <div class="hero-eyebrow">Junior Penetration Tester</div>
+    <h1 class="hero-name">Yasir<br>Abdulsalam</h1>
+    <div class="hero-role">Red Team · Web App Security · SIEM</div>
+    <p class="hero-bio">
+      I break things safely — web applications, misconfigured services,
+      authentication flows — and document exactly how. Based in Ibadan, Nigeria.
+      Open to entry-level offensive security roles.
+    </p>
+    <div class="hero-stats" id="hero-stats"></div>
+    <div class="hero-btns">
+      <a href="#projects" class="btn btn-primary">View Projects</a>
+      <a href="https://github.com/Yasir-TechGuy" target="_blank" class="btn btn-outline">GitHub →</a>
+    </div>
+  </div>
+
+  <!-- TERMINAL -->
+  <div class="terminal">
+    <div class="term-bar">
+      <div class="td"></div><div class="td"></div><div class="td"></div>
+      <span class="term-title">yasir@kali — terminal</span>
+    </div>
+    <div class="term-body">
+      <div class="tl"><span class="tp">┌──(yasir㉿kali)-[~]</span></div>
+      <div class="tl"><span class="tp">└─$ </span><span class="tc">whoami</span></div>
+      <span class="to">yasir-abdulsalam · jr-penetration-tester</span>
+
+      <div class="tl"><span class="tp">└─$ </span><span class="tc">cat focus.txt</span></div>
+      <span class="to">web-app-security | network-pentest | siem</span>
+
+      <div class="tl"><span class="tp">└─$ </span><span class="tc">cat certs.txt</span></div>
+      <span class="to">[✓] cisco-cyberops</span>
+      <span class="to">[►] ejpt — in progress</span>
+      <span class="to">[○] htb-cpts → oscp — planned</span>
+
+      <div class="tl"><span class="tp">└─$ </span><span class="tc">cat target.txt</span></div>
+      <span class="to">eJPT → HTB CPTS → OSCP</span>
+
+      <div class="tl"><span class="tp">└─$ </span><span class="cursor"></span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ABOUT -->
+<section id="about">
+  <div class="section-header reveal">
+    <span class="sec-label">01</span>
+    <h2 class="sec-title">About</h2>
+    <div class="sec-rule"></div>
+  </div>
+  <div class="about-grid reveal">
+    <div class="about-bio" id="about-bio"></div>
+    <div class="about-info" id="about-info"></div>
+  </div>
+</section>
+
+<!-- SKILLS -->
+<section id="skills">
+  <div class="section-header reveal">
+    <span class="sec-label">02</span>
+    <h2 class="sec-title">Technical Skills</h2>
+    <div class="sec-rule"></div>
+  </div>
+  <div class="skills-grid" id="skills-grid"></div>
+</section>
+
+<!-- PROJECTS -->
+<section id="projects">
+  <div class="section-header reveal">
+    <span class="sec-label">03</span>
+    <h2 class="sec-title">Projects</h2>
+    <div class="sec-rule"></div>
+  </div>
+  <div class="projects-grid" id="projects-grid"></div>
+  <div style="text-align:center;margin-top:2rem">
+    <a href="https://github.com/Yasir-TechGuy" target="_blank" class="btn btn-outline">All Repositories →</a>
+  </div>
+</section>
+
+<!-- CTF WRITE-UPS -->
+<section id="ctf">
+  <div class="section-header reveal">
+    <span class="sec-label">04</span>
+    <h2 class="sec-title">CTF Write-ups</h2>
+    <div class="sec-rule"></div>
+  </div>
+  <div class="ctf-list reveal" id="ctf-list"></div>
+  <div style="text-align:center;margin-top:2rem">
+    <a href="https://github.com/Yasir-TechGuy/CTF-Rooms-Write-up" target="_blank" class="btn btn-outline">Full Write-up Repository →</a>
+  </div>
+</section>
+
+<!-- CERTIFICATIONS -->
+<section id="certs">
+  <div class="section-header reveal">
+    <span class="sec-label">05</span>
+    <h2 class="sec-title">Certifications &amp; Roadmap</h2>
+    <div class="sec-rule"></div>
+  </div>
+  <div class="certs-grid reveal" id="certs-grid"></div>
+</section>
+
+<!-- TOOLS -->
+<section id="tools">
+  <div class="section-header reveal">
+    <span class="sec-label">06</span>
+    <h2 class="sec-title">Tools Arsenal</h2>
+    <div class="sec-rule"></div>
+  </div>
+  <div class="tools-grid reveal" id="tools-grid"></div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact">
+  <div class="section-header reveal">
+    <span class="sec-label">07</span>
+    <h2 class="sec-title">Contact</h2>
+    <div class="sec-rule"></div>
+  </div>
+  <div class="contact-grid reveal" id="contact-grid"></div>
+</section>
+
+<footer>
+  <span>Yasir Abdulsalam</span> · Junior Penetration Tester · Ibadan, Nigeria · <span>© 2026</span>
+</footer>
+
+<script>
+const D = {
+
+  stats: [
+    { num: "3",    label: "Security Projects" },
+    { num: "7",    label: "CTFs Solved"        },
+    { num: "3",    label: "Certifications"     },
+    { num: "eJPT", label: "In Progress"        },
+  ],
+
+  about: {
+    bio: [
+      "Penetration tester focused on offensive security across web applications and network infrastructure. My work combines structured methodology with hands-on exploitation — from SMB enumeration and privilege escalation to WAF bypass techniques and brute-force campaign simulation.",
+      "Recent work includes a full offensive assessment of a Docker-hosted web application (SQLi/XSS exploitation, custom ModSecurity WAF rule development), Linux privilege escalation via PATH hijacking, and building an ELK Stack SIEM pipeline to detect a simulated Hydra SSH brute-force campaign.",
+      "Pursuing eJPT certification, with a committed roadmap toward HTB CPTS and OSCP. Every technique gets documented. Every project gets written up.",
+    ],
+    info: [
+      { k: "Status",    v: "Open to Entry-Level Roles"    },
+      { k: "Focus",     v: "Offensive Security"           },
+      { k: "Location",  v: "Ibadan, Oyo State, Nigeria"   },
+      { k: "Portfolio", v: "yasir-techguy.github.io"      },
+      { k: "LinkedIn",  v: "in/yasirabdulsalam"           },
+      { k: "GitHub",    v: "Yasir-TechGuy"                },
+    ],
+  },
+
+  skills: [
+    {
+      name: "Offensive Security",
+      desc: "Structured attack methodology from recon to post-exploitation",
+      tags: ["Penetration Testing", "Privilege Escalation", "Exploitation", "SUID Abuse", "PATH Hijacking", "CVE Exploitation"],
+    },
+    {
+      name: "Web Application Security",
+      desc: "OWASP Top 10 testing — manual and tool-assisted",
+      tags: ["Burp Suite", "SQL Injection", "XSS", "OWASP Top 10", "ffuf", "ModSecurity", "Directory Enumeration"],
+    },
+    {
+      name: "SIEM & Incident Response",
+      desc: "Attack detection, log analysis and response pipelines",
+      tags: ["ELK Stack", "Elasticsearch", "Kibana", "NIST SP 800-61", "MITRE ATT&CK", "Brute-Force Detection", "Log Analysis"],
+    },
+    {
+      name: "Infrastructure & Tools",
+      desc: "Lab environments, enumeration and exploitation frameworks",
+      tags: ["Kali Linux", "Docker", "Nmap", "Metasploit", "Hydra", "Wireshark", "Smbclient", "Bash", "Python"],
+    },
+  ],
+
+  projects: [
+    {
+      featured: true,
+      cat:   "Web Application Pentest",
+      title: "PrestaShop Security Assessment",
+      desc:  "Full offensive assessment of a self-hosted PrestaShop instance deployed via Docker. Mapped OWASP Top 10 attack vectors, executed SQLi and XSS payloads, developed custom ModSecurity WAF rules, and delivered a complete pentest report with severity ratings and remediation guidance.",
+      tags:  ["Docker", "OWASP Top 10", "SQLi", "XSS", "ModSecurity", "WAF"],
+      url:   "https://github.com/Yasir-TechGuy/prestashop-security-assessment",
+    },
+    {
+      featured: false,
+      cat:   "SIEM / Blue Team",
+      title: "ELK Stack SIEM & Attack Detection Lab",
+      desc:  "Simulated an SSH brute-force campaign using Hydra against Metasploitable, ingested attack logs into an Elasticsearch/Logstash/Kibana pipeline, and built Kibana dashboards for real-time attack visualization. Produced an NIST SP 800-61-aligned incident analysis report.",
+      tags:  ["ELK Stack", "Hydra", "Metasploitable", "Kibana", "NIST", "MITRE ATT&CK"],
+      url:   "https://github.com/Yasir-TechGuy/ssh-bruteforce-detection-elk",
+    },
+    {
+      featured: false,
+      cat:   "CTF Research",
+      title: "CTF Write-up Repository",
+      desc:  "Documented exploitation chains from completed CTF rooms — covering SMB enumeration, Linux privilege escalation, CVE exploitation, encoding chains, steganography, and OSINT. Each write-up details the full methodology, commands used, and lessons learned.",
+      tags:  ["Linux", "Privilege Escalation", "SMB", "CVE", "Steganography", "OSINT"],
+      url:   "https://github.com/Yasir-TechGuy/CTF-Rooms-Write-up",
+    },
+  ],
+
+  ctfs: [
+    {
+      idx: "07", featured: true,
+      name: "Kenobi",
+      tech: "SMB enumeration · ProFTPD exploitation · SUID binary analysis · PATH hijacking → root shell",
+      url:  "https://github.com/Yasir-TechGuy/CTF-Rooms-Write-up",
+    },
+    {
+      idx: "06", featured: false,
+      name: "Tomghost",
+      tech: "CVE-2020-1938 (Ghostcat) · Apache Tomcat AJP · Metasploit · PGP key cracking · sudo zip",
+      url:  "https://github.com/Yasir-TechGuy/CTF-Rooms-Write-up/tree/main/Tomghost",
+    },
+    {
+      idx: "05", featured: false,
+      name: "Brooklyn Nine Nine",
+      tech: "Steganography · FTP anonymous login · Hydra SSH · GTFOBins · dual attack path",
+      url:  "https://github.com/Yasir-TechGuy/CTF-Rooms-Write-up/tree/main/Brooklyn%2099",
+    },
+    {
+      idx: "04", featured: false,
+      name: "Bounty Hacker",
+      tech: "FTP anonymous login · credential discovery · Hydra SSH brute-force · sudo tar GTFOBins",
+      url:  "https://github.com/Yasir-TechGuy/CTF-Rooms-Write-up/tree/main/Bounty-Hacker",
+    },
+    {
+      idx: "03", featured: false,
+      name: "Easy Peasy",
+      tech: "Multi-port scan · Base64/ROT13 encoding chains · GOST hash · steganography · cron job abuse",
+      url:  "https://github.com/Yasir-TechGuy/CTF-Rooms-Write-up/tree/main/Easy-Peasy",
+    },
+    {
+      idx: "02", featured: false,
+      name: "Pickle Rick",
+      tech: "Web enumeration · page source analysis · robots.txt · command injection · sudo abuse",
+      url:  "https://github.com/Yasir-TechGuy/CTF-Rooms-Write-up/tree/main/Prickle_Rick",
+    },
+    {
+      idx: "01", featured: false,
+      name: "Love Letter Locker",
+      tech: "IDOR vulnerability · web application hacking · Valentine CTF 2026",
+      url:  "https://github.com/Yasir-TechGuy/CTF-Rooms-Write-up",
+    },
+  ],
+
+  certs: [
+    { status:"earned",   name:"Cisco CyberOps Associate",         issuer:"Cisco Networking Academy", when:"April 2025"      },
+    { status:"earned",   name:"Cyber Security 101",                issuer:"TryHackMe",                when:"Feb 2026"        },
+    { status:"earned",   name:"Pre Security",                      issuer:"TryHackMe",                when:"2025"            },
+    { status:"progress", name:"eJPT — Junior Penetration Tester",  issuer:"eLearnSecurity",           when:"In Progress"     },
+    { status:"planned",  name:"HTB CPTS",                          issuer:"HackTheBox",               when:"Planned"         },
+    { status:"planned",  name:"OSCP",                              issuer:"Offensive Security",       when:"Long-term Goal"  },
+  ],
+
+  tools: [
+    { name:"Burp Suite",  cat:"Web Testing"  },
+    { name:"Nmap",        cat:"Enumeration"  },
+    { name:"Metasploit",  cat:"Exploitation" },
+    { name:"ffuf",        cat:"Fuzzing"      },
+    { name:"Hydra",       cat:"Brute Force"  },
+    { name:"Wireshark",   cat:"Analysis"     },
+    { name:"Kali Linux",  cat:"OS"           },
+    { name:"Docker",      cat:"Lab Env"      },
+    { name:"ELK Stack",   cat:"SIEM"         },
+    { name:"Smbclient",   cat:"Enumeration"  },
+    { name:"Netcat",      cat:"Networking"   },
+    { name:"Bash/Python", cat:"Scripting"    },
+  ],
+
+  contact: [
+    { name:"GitHub",    handle:"Yasir-TechGuy",          url:"https://github.com/Yasir-TechGuy"                },
+    { name:"LinkedIn",  handle:"in/yasirabdulsalam",      url:"https://www.linkedin.com/in/yasirabdulsalam"     },
+    { name:"Email",     handle:"donyaskid0609@gmail.com", url:"mailto:donyaskid0609@gmail.com"                  },
+    { name:"Medium",    handle:"@donyaskid0609",          url:"https://medium.com/@donyaskid0609"               },
+  ],
+};
+
+/* ── RENDER ─────────────────────────────────────────────────────────── */
+
+// Stats
+document.getElementById('hero-stats').innerHTML = D.stats.map(s =>
+  `<div><span class="stat-num">${s.num}</span><span class="stat-label">${s.label}</span></div>`
+).join('');
+
+// About
+document.getElementById('about-bio').innerHTML =
+  D.about.bio.map(p => `<p>${p}</p>`).join('');
+
+document.getElementById('about-info').innerHTML =
+  D.about.info.map(r =>
+    `<div class="info-row"><span class="info-k">${r.k}</span><span class="info-v">${r.v}</span></div>`
+  ).join('');
+
+// Skills
+document.getElementById('skills-grid').innerHTML = D.skills.map(s =>
+  `<div class="skill-card reveal">
+    <div class="skill-name">${s.name}</div>
+    <div class="skill-desc">${s.desc}</div>
+    <div class="skill-tags">${s.tags.map(t=>`<span class="stag">${t}</span>`).join('')}</div>
+  </div>`
+).join('');
+
+// Projects
+document.getElementById('projects-grid').innerHTML = D.projects.map(p =>
+  `<div class="proj-card ${p.featured?'featured':''} reveal">
+    <div class="proj-cat">${p.cat}</div>
+    <div class="proj-title">${p.title}</div>
+    <p class="proj-desc">${p.desc}</p>
+    <div class="proj-tags">${p.tags.map(t=>`<span class="ptag">${t}</span>`).join('')}</div>
+    <a href="${p.url}" target="_blank" class="proj-link">View on GitHub →</a>
+  </div>`
+).join('');
+
+// CTF
+document.getElementById('ctf-list').innerHTML = D.ctfs.map(c =>
+  `<a href="${c.url}" target="_blank" class="ctf-row ${c.featured?'featured':''}">
+    <div class="ctf-idx">${c.idx}</div>
+    <div>
+      <div class="ctf-name">${c.name}</div>
+      <div class="ctf-tech">${c.tech}</div>
+    </div>
+    <div class="ctf-solved">Solved</div>
+  </a>`
+).join('');
+
+// Certs
+document.getElementById('certs-grid').innerHTML = D.certs.map(c =>
+  `<div class="cert-card reveal">
+    <div class="cert-dot ${c.status}"></div>
+    <div>
+      <div class="cert-name">${c.name}</div>
+      <div class="cert-issuer">${c.issuer}</div>
+      <div class="cert-when ${c.status}">${c.when}</div>
+    </div>
+  </div>`
+).join('');
+
+// Tools
+document.getElementById('tools-grid').innerHTML = D.tools.map(t =>
+  `<div class="tool-item reveal">
+    <div class="tool-name">${t.name}</div>
+    <div class="tool-cat">${t.cat}</div>
+  </div>`
+).join('');
+
+// Contact
+document.getElementById('contact-grid').innerHTML = D.contact.map(c =>
+  `<a href="${c.url}" target="_blank" class="contact-card reveal">
+    <div class="contact-name">${c.name}</div>
+    <div class="contact-handle">${c.handle}</div>
+  </a>`
+).join('');
+
+/* ── SCROLL REVEAL ───────────────────────────────────────────────────── */
+const obs = new IntersectionObserver(entries => {
+  entries.forEach((e, i) => {
+    if (e.isIntersecting) setTimeout(() => e.target.classList.add('visible'), i * 55);
+  });
+}, { threshold: 0.08 });
+document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+</script>
+</body>
+</html>
